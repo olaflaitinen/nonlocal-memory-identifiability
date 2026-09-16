@@ -1,0 +1,14 @@
+name: nmi
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy>=2.0
+  - scipy>=1.13
+  - matplotlib>=3.8
+  - h5py>=3.10
+  - numba>=0.60
+  - emcee>=3.1
+  - arviz>=0.19
+  - pandas>=2.2
+  - pip
