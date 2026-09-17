@@ -4,8 +4,10 @@
 
 # Purpose: Pinned software environment for the forward solvers, the inference
 # code, the figures and the tables of the manuscript. The versions recorded
-# below are the versions with which the tests and the smoke configuration of
-# this repository were executed.
+# below are the versions with which the test suite and the demonstration
+# configuration of this repository have been run, on Linux with a virtual
+# environment. The conda specification itself has not yet been resolved, so the
+# pins are to be confirmed the first time the environment is built.
 # Manuscript: Section 4.6, computational resources.
 # Inputs: none. Outputs: a conda environment named nmi.
 
