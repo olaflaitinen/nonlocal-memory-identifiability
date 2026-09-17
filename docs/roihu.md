@@ -1,8 +1,11 @@
 # Running on the CSC Roihu supercomputer
 
-The experiments of Sections 5 and 6 were executed on the Roihu supercomputer of
-CSC, IT Center for Science, Finland. This file records the environment build,
-the directory layout, the submission of chained jobs and the monitoring.
+The sampling experiments of Sections 5 and 6 are planned for the Roihu
+supercomputer of CSC, IT Center for Science, Finland. Nothing in this file has
+been tested there yet: no allocation has been used, no environment has been
+built with Tykky and no job has been submitted. This file states the intended
+environment build, the directory layout, the submission of chained jobs and the
+monitoring, and is to be confirmed on the first run.
 
 ## Before you start
 
@@ -79,4 +82,5 @@ csc-projects
 ```
 
 Record the total consumption reported by `sacct` for the manuscript, since
-Section 4.6 quotes the number of core hours used.
+Section 4.6 is to quote the number of core hours used. No core hours have been
+consumed yet.
