@@ -55,8 +55,14 @@ def convolve_masked(field, radius, kernel, cell):
 
 
 # Stationary density of model (1) on a masked study area.
+# The aggregation ratio is used in the dimensionless form kappa u_bar of
+# Proposition 3, where u_bar is the mean density of the uniform state on the
+# study area. The exponent of the fixed-point map is therefore the ratio times
+# the area of the study region times the perceived probability density, which
+# makes the reported value comparable across individuals of different range
+# size and with the synthetic experiments of Section 5.
 # Arguments:
-#   aggregation_ratio (float): the ratio kappa = gamma / (d mu).
+#   aggregation_ratio (float): the dimensionless ratio kappa u_bar.
 #   radius (float): perceptual range R of the detection kernel.
 #   kernel (str): "tophat" or "gaussian".
 #   mask (numpy.ndarray): boolean array that is True inside the study area.
@@ -93,7 +99,7 @@ def masked_steady_state(
     iteration = 0  # Number of iterations performed so far.
     while iteration < int(max_iter) and increment > float(tol):  # Iterate until convergence.
         perceived = convolve_masked(density, radius, kernel, cell)  # Perceived map of the density.
-        exponent = float(aggregation_ratio) * perceived  # Exponent of the fixed-point map.
+        exponent = float(aggregation_ratio) * area * perceived  # Dimensionless exponent.
         exponent = np.where(inside, exponent - float(np.max(exponent[inside])), 0.0)  # Stabilise.
         candidate = np.exp(exponent) * inside  # Unnormalised image of the fixed-point map.
         candidate = candidate / (float(np.sum(candidate)) * cell * cell)  # Normalise to unit mass.
