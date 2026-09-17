@@ -120,3 +120,40 @@ def config_hash(config):
     canonical = json.dumps(reduced, sort_keys=True, default=str)  # Canonical textual form.
     digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()  # Full hexadecimal digest.
     return digest[:16]  # A short prefix is sufficient to distinguish configurations.
+# Read a YAML document without applying the schema checks.
+# Arguments:
+#   path (str or pathlib.Path): path of the YAML file to read.
+# Returns:
+#   dict: the parsed document, with an added "config_path" entry.
+def read_yaml(path):
+    location = Path(path)  # Normalise the argument into a path object.
+    if not location.is_file():  # The configuration file does not exist.
+        raise FileNotFoundError(f"Configuration file not found: {location}")  # Report clearly.
+    parsed = yaml.safe_load(location.read_text(encoding="utf-8"))  # Parse the YAML document.
+    if not isinstance(parsed, dict):  # A configuration must be a mapping at the top level.
+        raise ValueError(f"Configuration {location} does not contain a top level mapping")  # Reject.
+    parsed["config_path"] = str(location)  # Record the origin of the configuration.
+    return parsed  # Parsed document, not yet validated against the schema.
+
+
+# Load an experiment configuration, resolving the chain of base configurations.
+# An experiment configuration may name a base configuration under the key
+# "base", whose entries are overridden by the entries of the experiment file.
+# Arguments:
+#   path (str or pathlib.Path): path of the experiment configuration.
+# Returns:
+#   dict: the merged and validated configuration mapping.
+def load_experiment_config(path):
+    location = Path(path)  # Normalise the argument into a path object.
+    document = read_yaml(location)  # Parsed experiment configuration, not yet merged.
+    base_name = document.pop("base", None)  # Optional name of the base configuration.
+    if base_name is None:  # The experiment configuration is self-contained.
+        validate_config(document)  # Apply the schema checks before returning it.
+        return document  # Validated configuration mapping.
+    base_path = (location.parent / str(base_name)).resolve()  # Base file beside the experiment.
+    if not base_path.is_file():  # The base may be given relative to the working directory.
+        base_path = Path(str(base_name))  # Interpret the name as a path of its own.
+    merged = merge_configs(load_experiment_config(base_path), document)  # Resolve the chain.
+    merged["config_path"] = str(location)  # Record the experiment file as the origin.
+    validate_config(merged)  # Apply the schema checks to the merged configuration.
+    return merged  # Merged and validated configuration mapping.
