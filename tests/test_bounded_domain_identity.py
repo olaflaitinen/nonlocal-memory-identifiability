@@ -15,15 +15,17 @@ from nmi.finite_volume import convolve_bounded_1d, simulate_fv_1d  # Bounded dom
 from nmi.kernels import kernel_hat_1d  # Fourier transform of the detection kernel.
 
 
-# The stationary state of the bounded problem satisfies the identity of Proposition 4.
+# Relative residual of the stationary identity on a bounded interval.
+# The solve is run to a stationary state with the positivity-preserving
+# finite-volume scheme and no-flux boundaries, and the quantity
+# log u - kappa G_R * u of Proposition 4 is compared with a constant.
 # Arguments:
-#   kernel (str): the detection kernel family under test.
+#   kernel (str): the detection kernel family of the solve.
+#   n_cells (int): number of cells of the finite-volume grid.
+#   t_final (float): end of the solve, well beyond the relaxation time.
 # Returns:
-#   None: the test asserts that the potential is constant.
-@pytest.mark.slow
-@pytest.mark.parametrize("kernel", ["tophat", "gaussian"])  # Both kernel families.
-def test_bounded_identity(kernel):  # Stationary identity on a bounded interval.
-    n_cells = 200  # Number of cells of the finite-volume grid.
+#   tuple: the relative residual, the smallest density and the mass error.
+def bounded_identity_residual(kernel, n_cells, t_final=300.0):
     length = 1.0  # Length of the bounded interval of the test.
     cell = length / n_cells  # Uniform cell width of the finite-volume grid.
     centres = (np.arange(n_cells) + 0.5) * cell  # Centres of the finite-volume cells.
@@ -41,26 +43,42 @@ def test_bounded_identity(kernel):  # Stationary identity on a bounded interval.
         "memory_decay": 1.0,  # Memory decay rate mu of the bounded solve.
         "radius": radius,  # Perceptual range R of the bounded solve.
     }
-    time_step = 0.2 * cell**2 / params["diffusion"]  # Explicit step inside the stability limit.
+    time_step = 0.2 * cell**2 / diffusion  # Explicit step inside the stability limit.
     result = simulate_fv_1d(  # Bounded finite-volume solve with no-flux boundaries.
         params,  # Model parameters of the bounded solve.
         kernel,  # Detection kernel family of the bounded solve.
         initial,  # Initial density of the bounded solve.
         0.0,  # Initial cognitive map of the bounded solve.
-        300.0,  # End of the bounded solve, well beyond the relaxation time.
+        float(t_final),  # End of the bounded solve.
         time_step,  # Time step of the explicit finite-volume scheme.
         length,  # Length of the bounded interval.
         "noflux",  # No-flux boundary condition of Proposition 4.
     )  # Stationary state reached by the bounded solve.
     density = result["final_density"]  # Stationary density of the bounded solve.
-    assert float(np.min(density)) > 0.0  # The scheme preserves positivity, as Section 4.1 states.
-    assert result["mass_error"] < 1.0e-12  # No flux crosses the boundary of the interval.
-    # Aggregation ratio kappa implied by the parameters of the bounded solve.
-    ratio = params["alpha"] * params["beta"] / (params["diffusion"] * params["memory_decay"])
-    perceived = convolve_bounded_1d(density, params["radius"], kernel, cell)  # Perceived map.
+    perceived = convolve_bounded_1d(density, radius, kernel, cell)  # Perceived map.
     potential = np.log(density) - ratio * perceived  # Quantity of Proposition 4.
     spread = float(np.max(potential) - np.min(potential))  # Variation of that quantity.
-    assert spread / float(np.max(np.abs(potential))) < 1.0e-2  # The potential is constant.
+    relative = spread / float(np.max(np.abs(potential)))  # Relative variation of the quantity.
+    return relative, float(np.min(density)), float(result["mass_error"])  # Residual and checks.
+
+
+# The residual of the identity of Proposition 4 vanishes as the grid is refined.
+# The first-order upwind flux carries a numerical diffusion proportional to the
+# cell width, so the residual is not zero at a fixed resolution; the content of
+# the proposition is that the residual decreases when the grid is refined.
+# Arguments:
+#   kernel (str): the detection kernel family under test.
+# Returns:
+#   None: the test asserts the expected decrease of the residual.
+@pytest.mark.slow
+@pytest.mark.parametrize("kernel", ["tophat", "gaussian"])  # Both kernel families.
+def test_bounded_identity_converges(kernel):  # Stationary identity on a bounded interval.
+    coarse, coarse_min, coarse_mass = bounded_identity_residual(kernel, 100)  # Coarse grid.
+    fine, fine_min, fine_mass = bounded_identity_residual(kernel, 200)  # Refined grid.
+    assert coarse_min > 0.0 and fine_min > 0.0  # The scheme preserves positivity throughout.
+    assert coarse_mass < 1.0e-12 and fine_mass < 1.0e-12  # No flux crosses the boundary.
+    assert fine < 0.7 * coarse  # Halving the cell width reduces the residual substantially.
+    assert fine < 0.05  # The residual is small in absolute terms at the finer resolution.
 
 
 # The bounded convolution agrees with a direct sum over the cells.

@@ -72,3 +72,9 @@ follows Keep a Changelog, and the project adheres to semantic versioning.
   study area loader and the summary reader now live in the nmi package.
 - The wolf scripts raised an unclear key error when they were given a
   configuration without a wolf block. They now report the mismatch and stop.
+- The verification of Proposition 4 compared the stationary identity with a
+  constant at a single resolution, which the first-order upwind flux cannot
+  satisfy for the top-hat kernel, whose perceived gradient is far steeper than
+  that of the Gaussian kernel. The test now checks what the proposition
+  asserts at the discrete level, namely that the residual falls when the grid
+  is refined from one hundred to two hundred cells.
