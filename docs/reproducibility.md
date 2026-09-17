@@ -150,6 +150,58 @@ make online-resource
 | Tracked summaries | `results/summary/*.csv` |
 | Raw output and checkpoints | `results/raw/` and `checkpoints/`, both untracked |
 
+## Release and archiving
+
+The manuscript cites an archived version of this code with a persistent
+identifier, as the research data and code sharing policy of the publisher
+requires. The archive is produced from a tagged release.
+
+1. Connect the repository to Zenodo before the release is published. Sign in at
+   https://zenodo.org with the GitHub account that owns the repository, open
+   the GitHub tab of the Zenodo account settings and enable the switch for
+   `olaflaitinen/nonlocal-memory-identifiability`. Zenodo archives a release
+   only when the switch was already enabled at the moment the release was
+   published.
+
+2. Verify the working tree before tagging. The tag must point at a commit at
+   which every check passes.
+
+```bash
+make policy
+make lint
+make test-all
+make smoke
+```
+
+3. Create an annotated tag on that commit and push it.
+
+```bash
+git tag -a v0.1.0 -m "Version 0.1.0"
+git push origin v0.1.0
+```
+
+4. Publish a release for the tag, either from the releases page of the
+   repository or with the GitHub command line client. The release notes
+   summarise the contents of the version, as recorded under the matching
+   heading of `CHANGELOG.md`.
+
+```bash
+gh release create v0.1.0 --title "v0.1.0" --notes-file release-notes.md
+```
+
+5. Zenodo mints a digital object identifier for the release within a few
+   minutes. Record it in three places and commit the change:
+
+   - the `identifiers` block of `CITATION.cff`;
+   - the `related_identifiers` block of `.zenodo.json`;
+   - the code availability paragraph of `README.md` and the corresponding
+     statement of the manuscript.
+
+6. The concept identifier that Zenodo assigns alongside the version identifier
+   resolves to the most recent version. Cite the version identifier in the
+   manuscript, so that the citation names the exact code that produced the
+   reported results.
+
 ## Determinism
 
 Every condition carries a seed spawned from the global seed of its
