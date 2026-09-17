@@ -1,0 +1,67 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Continuous integration workflow that enforces the repository
+# policies, the linter and the fast part of the test suite on every push.
+# Manuscript: supports the code availability statement and docs/reproducibility.md.
+# Inputs: the repository contents. Outputs: the status of the workflow run.
+
+# Name of the workflow as shown in the repository interface.
+name: Checks
+# Events that start the workflow.
+on:
+  # Every push to the default branch runs the workflow.
+  push:
+    # Branches whose pushes start the workflow.
+    branches:
+      # The default branch of the repository.
+      - main
+  # Manual dispatch allows the workflow to be started from the interface.
+  workflow_dispatch:
+# Jobs that make up the workflow.
+jobs:
+  # Single job that installs the package and runs every check.
+  checks:
+    # Human readable name of the job.
+    name: Policy checks, linting and fast tests
+    # Virtual machine image on which the job runs.
+    runs-on: ubuntu-latest
+    # Ordered steps executed by the job.
+    steps:
+      # Obtain the repository contents, including the full history for git ls-files.
+      - name: Check out the repository
+        # Official action that clones the repository into the workspace.
+        uses: actions/checkout@v4
+      # Install the interpreter version used for the reported results.
+      - name: Set up Python 3.12
+        # Official action that provisions a CPython interpreter.
+        uses: actions/setup-python@v5
+        # Parameters of the interpreter setup.
+        with:
+          # Interpreter version required by the packaging metadata.
+          python-version: "3.12"
+      # Install the package together with the test and lint extras.
+      - name: Install the package and the development extras
+        # Editable installation so that the source tree is imported directly.
+        run: python -m pip install -e .[dev]
+      # Verify that no forbidden character appears in a tracked file.
+      - name: Check the character policy
+        # Runs the checker over every file tracked by git.
+        run: python tools/check_text_policy.py
+      # Verify that every line of code carries an explanatory comment.
+      - name: Check the comment policy
+        # Runs the checker over every file tracked by git.
+        run: python tools/check_comment_policy.py
+      # Verify that every file that supports comments opens with the licence notice.
+      - name: Check the licence headers
+        # Runs the checker over every file tracked by git.
+        run: python tools/check_license_headers.py
+      # Run the linter with the configuration stored in pyproject.toml.
+      - name: Run the linter
+        # Static checks of style and of unused names.
+        run: python -m ruff check .
+      # Run the tests that do not require a full forward solve or a sampler.
+      - name: Run the fast tests
+        # The slow marker is excluded so that the workflow finishes quickly.
+        run: python -m pytest -m "not slow"
