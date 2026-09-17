@@ -2,8 +2,10 @@
 
 Every experiment of the manuscript is listed below with its manuscript
 location, its configuration file, its script, its Slurm job file, its outputs
-and its planned compute. Run times marked "to be measured" are filled in once
-the experiment has been executed on the named machine.
+and its planned compute. No experiment has been run yet, so the compute column
+states an estimate rather than an observation. Run times marked "to be
+measured" are filled in once the experiment has been executed on the named
+machine.
 
 ## Mapping table
 
