@@ -1,0 +1,37 @@
+# Results
+
+This directory holds the outputs of the experiments. Only the compact summaries
+under `summary/` are tracked by version control; everything else is regenerated
+by the scripts.
+
+## Layout
+
+| Path | Tracked | Contents |
+|---|---|---|
+| `summary/` | yes | one comma separated summary per experiment, read by the figure and table scripts |
+| `figures/` | no | `FigN.eps` and a preview `FigN.pdf`, written by the scripts under `figures/` |
+| `tables/` | no | `TableN.csv`, `TableN.tex` and `ESM_1.csv`, written by the scripts under `tables/` |
+| `raw/` | no | reference solutions, sampler chains and study areas, written by the scripts under `experiments/` |
+
+Outputs of the smoke configuration are named `smoke_*` and are not tracked. They
+demonstrate that the pipeline runs end to end and are not the results reported
+in the manuscript.
+
+## Metadata
+
+Every archive and every summary carries the git commit of the working tree, the
+hash of the configuration, the versions of the scientific libraries, the seed of
+the condition and the time of the run, so that a result can be traced back to
+the exact code and settings that produced it. Outputs derived from the wolf data
+also carry the citation of the data package.
+
+## Regenerating the contents
+
+```bash
+make smoke            # the small demonstration configuration
+make tables           # Table 3 to Table 8 from the tracked summaries
+make figures          # Fig. 1 to Fig. 7 from the tracked summaries
+make online-resource  # Online Resource 1 from the tracked summaries
+```
+
+The full reproduction route is described in `docs/reproducibility.md`.
