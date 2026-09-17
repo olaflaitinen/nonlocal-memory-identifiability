@@ -146,3 +146,28 @@ def read_hdf5(path):
 def write_metadata_csv(path, metadata):
     rows = [{"key": key, "value": value} for key, value in sorted(metadata.items())]  # Long form.
     return write_csv(path, rows, ["key", "value"])  # Two column table of metadata entries.
+
+
+# Read the generated synthetic data of one condition from its archive.
+# Arguments:
+#   experiment (str): the experiment identifier under which the data were written.
+#   index (int): the stable integer index of the condition.
+#   directory (str or pathlib.Path): the directory that holds the archives.
+# Returns:
+#   dict: the transient and stationary observations, the noise scale and the
+#   largest density of the reference simulation.
+def read_condition_data(experiment, index, directory=None):
+    folder = Path(directory) if directory else Path("results/raw") / str(experiment)  # Location.
+    arrays, metadata = read_hdf5(folder / f"data_{int(index):03d}.h5")  # Contents of the archive.
+    # Observations and noise scale of the requested condition.
+    return {
+        "observations": arrays["observations"],  # Noisy transient observations.
+        "clean": arrays["clean"],  # Noise free transient values at the same points.
+        "times": arrays["times"],  # Observation times of the sampling design.
+        "stationary_observations": arrays["stationary_observations"],  # Noisy stationary values.
+        "stationary_clean": arrays["stationary_clean"],  # Noise free stationary values.
+        "stationary_density": arrays["stationary_density"],  # Stationary density on the grid.
+        "sigma": float(metadata["sigma"]),  # Standard deviation of the observation noise.
+        "u_max": float(metadata["u_max"]),  # Largest density of the reference simulation.
+        "seed": int(metadata["seed"]),  # Deterministic seed of the condition.
+    }
