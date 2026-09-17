@@ -110,6 +110,7 @@ def run_condition(condition, config, directory, chain_index, resume):
         chains.append(result["chain"])  # Store the chain of this run.
         acceptance.append(result["acceptance_rate"])  # Store the acceptance rate of this run.
         complete = complete and bool(result["complete"])  # Track whether the block finished.
+        # Report the number of iterations completed by this chain.
         print(f"condition {condition['index']:03d} chain {index}: {result['iterations']} iterations")
     if chain_index is not None or not complete:  # A partial run produces no summary row.
         return None  # The summary is written once every chain of the condition is complete.
@@ -117,6 +118,7 @@ def run_condition(condition, config, directory, chain_index, resume):
     burn_in = int(float(settings["burn_in_fraction"]) * stacked.shape[1])  # Discarded iterations.
     kept = np.exp(stacked[:, burn_in:, :])  # Retained draws, converted to natural units.
     statistics = convergence_statistics(kept, PARAMETER_NAMES)  # Convergence diagnostics.
+    # True parameters in natural units, used to form the relative widths.
     truth_map = {name: float(np.exp(truth[position])) for position, name in enumerate(PARAMETER_NAMES)}
     summary = posterior_summary(kept, PARAMETER_NAMES, truth_map)  # Posterior summaries.
     write_hdf5(  # Archive of the chains of this condition.
@@ -157,9 +159,11 @@ def main(argv):
     conditions = design["transient"]  # Transient conditions of the factorial design.
     if arguments.condition_index is not None:  # A single condition was requested.
         conditions = [conditions[int(arguments.condition_index) % len(conditions)]]  # That one.
+    # Directory that receives the archives of the sampled chains.
     directory = ensure_dir(arguments.output_dir or Path("results/raw") / str(config["experiment"]))
     records = []  # Accumulator for the summary rows of the completed conditions.
     for condition in conditions:  # Run the chains of each selected condition in turn.
+        # Run every requested chain of this condition and summarise the result.
         record = run_condition(condition, config, directory, arguments.chain_index, arguments.resume)
         if record is not None:  # The condition completed every one of its chains.
             records.append(record)  # Store the summary row of the condition.

@@ -43,3 +43,16 @@ follows Keep a Changelog, and the project adheres to semantic versioning.
   with the continuous integration workflow that enforces them.
 - Documentation of the model equations, the experiment map, the reproduction
   route, the cluster workflow, the figure style and the coding standards.
+
+### Fixed
+
+- The comment policy checker misreported dictionary keys inside a bracketed
+  expression as Python docstrings, and did not exempt shell line continuations
+  or the keywords that only close a block.
+- The bounded convolution of the finite-volume solver returned an array of the
+  wrong length, because the discrete convolution was taken in the "same" mode
+  against a kernel longer than the field.
+- The masked steady-state solver of the wolf application used the aggregation
+  ratio with the dimensions of an area, so that the fitted density was
+  numerically indistinguishable from a uniform one. The ratio is now used in
+  the dimensionless form kappa u_bar of Proposition 3.

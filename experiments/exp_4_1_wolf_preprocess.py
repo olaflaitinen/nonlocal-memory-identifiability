@@ -65,6 +65,7 @@ def verify_files(event_path, reference_path, settings):
     }
     if settings.get("require_checksums", True) and not all(outcome.values()):  # A mismatch occurred.
         failed = [name for name, ok in outcome.items() if not ok]  # Files that failed the check.
+        # A mismatch means that a different version of the package was downloaded.
         raise ValueError(f"Checksum verification failed for: {', '.join(failed)}; see data/README.md")
     return outcome  # Verification outcome, reported in the summary of the experiment.
 
@@ -78,6 +79,7 @@ def verify_files(event_path, reference_path, settings):
 def regression_checks(events, reference):
     fix_type = pandas.to_numeric(events["gps:fix-type"], errors="coerce")  # Dimension of each fix.
     longitudes = pandas.to_numeric(events["location-long"], errors="coerce")  # Longitudes of fixes.
+    # Sex of each animal, taken from the first deployment of that animal.
     sexes = reference.drop_duplicates(subset=["animal-id"])["animal-sex"].astype(str).str.lower()
     # Observed values of the properties recorded in data/README.md.
     return {
@@ -88,6 +90,7 @@ def regression_checks(events, reference):
         "n_deployments": int(reference["deployment-id"].nunique()),  # Number of deployments.
         "all_visible": bool((events["visible"].astype(str).str.lower() == "true").all()),  # Flags.
         "n_two_dimensional_fixes": int((fix_type == 2).sum()),  # Two-dimensional GPS fixes.
+        # Whether every fix lies within Universal Transverse Mercator zone 12.
         "longitudes_in_zone_12": bool(((longitudes >= -114.0) & (longitudes <= -108.0)).all()),
     }
 
@@ -122,6 +125,7 @@ def main(argv):
     west = float(settings["utm_zone_west"])  # Western limit of the projection zone, in degrees.
     east = float(settings["utm_zone_east"])  # Eastern limit of the projection zone, in degrees.
     outside = float(np.mean((longitudes < west) | (longitudes > east)))  # Fraction outside the zone.
+    print(f"fraction of fixes outside the configured projection zone: {outside:.4f}")  # Report it.
     table = pandas.DataFrame(  # Internal cleaned table written to the raw output directory.
         {  # Columns of the internal cleaned table of Section 4.5.
             "individual_id": cleaned["individual-local-identifier"].astype(str),  # Animal.
@@ -135,6 +139,7 @@ def main(argv):
     table.to_csv(cleaned_path, index=False)  # Write the internal cleaned table.
     print(f"wrote {cleaned_path} with {len(table)} retained fix(es)")  # Report the cleaned table.
     akde = run_density_estimation(settings, cleaned_path, directory, arguments.skip_r)  # AKDE step.
+    # Summary table of the preprocessing, with one row per tracked animal.
     records = build_summary(table, reference, akde, settings, directory, checks, counts, checksums)
     summary = Path("results/summary") / f"{config['experiment']}_wolf_data.csv"  # Summary path.
     write_csv(summary, records, list(records[0].keys()))  # Write the tracked summary table.
@@ -206,18 +211,23 @@ def build_summary(table, reference, akde, settings, directory, checks, counts, c
     for identifier, group in table.groupby("individual_id"):  # Summarise each individual.
         times = pandas.to_datetime(group["timestamp_utc"], utc=True)  # Times of the retained fixes.
         span_days = float((times.max() - times.min()).total_seconds() / 86400.0)  # Monitoring span.
+        # Intervals between consecutive fixes of this animal, in seconds.
         intervals = np.diff(np.sort(times.to_numpy().astype("datetime64[s]").astype(float)))
+        # Median interval between consecutive fixes, reported in hours.
         median_interval = float(np.median(intervals) / 3600.0) if intervals.size else float("nan")
         estimate = akde.get(str(identifier), {})  # Estimated quantities of this individual.
         n_eff = float(estimate.get("n_eff", float("nan")))  # Effective sample size for area.
         area = float(estimate.get("area_m2", float("nan")))  # Ninety five per cent home range area.
         long_enough = span_days >= float(settings["min_span_days"])  # Monitoring span criterion.
+        # Whether the effective sample size satisfies the inclusion rule.
         informative = np.isfinite(n_eff) and n_eff >= float(settings["min_effective_size"])
         included = bool(long_enough and informative)  # Inclusion rule fixed before any fitting.
         reason = ""  # Reason for exclusion, empty for an included individual.
         if not long_enough:  # The monitoring span is shorter than the configured minimum.
+            # Reason for excluding an individual with a short monitoring span.
             reason = f"monitoring span of {span_days:.1f} days is shorter than the minimum"
         elif not informative:  # The effective sample size is below the configured minimum.
+            # Reason for excluding an individual with uninformative fixes.
             reason = "effective sample size for area is below the minimum or is unavailable"
         study_area_cells = ""  # Number of interior cells of the study area, when it is built.
         if included and np.isfinite(area):  # A study area is built for the included individuals.
@@ -265,6 +275,7 @@ def build_summary(table, reference, akde, settings, directory, checks, counts, c
                 "dropped_duplicate_timestamps": counts["dropped_duplicate_timestamps"],  # Rule.
                 "dropped_not_visible": counts["dropped_not_visible"],  # Cleaning rule count.
                 "dropped_non_gps": counts["dropped_non_gps"],  # Cleaning rule count.
+                # Citation of the data package, carried through every output.
                 "data_citation": "Latham and Boutin (2019) https://doi.org/10.5441/001/1.7vr1k987",
             }
         )  # Row appended to the summary table.

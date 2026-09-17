@@ -58,11 +58,13 @@ def build_problem(condition, config):
     data = read_condition_data(config["experiment"], condition["index"])  # Generated data.
     if condition["data_type"] == "stationary":  # Stationary data of setting (S).
         context = stationary_context(condition, config)  # Context of the stationary forward map.
+        # Prior on the two parameters that stationary data can determine.
         prior = stationary_prior(condition["aggregation_ratio"], config["design"]["priors"])
         observations = {  # Data mapping used by the stationary log-likelihood.
             "observations": data["stationary_observations"],  # Noisy stationary observations.
             "sigma": data["sigma"],  # Standard deviation of the observation noise.
         }
+        # True stationary parameters of the condition, in log space.
         truth = np.log([float(condition["aggregation_ratio"]), float(condition["radius"])])
         # Log-likelihood of the stationary observations at parameters in log space.
         def evaluate(point):
@@ -104,6 +106,7 @@ def main(argv):
     conditions = design["stationary"]  # The profile likelihood conditions of Table 6.
     if arguments.condition_index is not None:  # A single condition was requested.
         conditions = [conditions[int(arguments.condition_index) % len(conditions)]]  # That one.
+    # Directory that receives the archives of the computed profiles.
     directory = ensure_dir(arguments.output_dir or Path("results/raw") / str(config["experiment"]))
     records = []  # Accumulator for the rows of the classification table.
     for condition in conditions:  # Profile every parameter of each condition in turn.
@@ -113,6 +116,7 @@ def main(argv):
             print(f"skipping completed condition {label}")  # Report the skipped condition.
             continue  # Continue with the next condition of the study.
         evaluate, prior, truth, names = build_problem(condition, config)  # Problem of the condition.
+        # Deterministic generator of the random starting points of this condition.
         generator = np.random.default_rng(int(settings["seed"]) + condition["profile_index"])
         arrays = {}  # Arrays stored in the archive of this condition.
         for position, name in enumerate(names):  # Profile each parameter of the condition.
@@ -125,6 +129,7 @@ def main(argv):
                 generator,  # Generator of the random starting points.
                 truth,  # Warm start of the first grid value, at the true parameters.
             )  # Profile of the current parameter.
+            # Classification of the confidence interval of the profiled parameter.
             verdict = classify_interval(outcome["grid"], outcome["profile"], float(settings["threshold"]))
             arrays[f"grid_{name}"] = outcome["grid"]  # Grid of the profiled parameter.
             arrays[f"profile_{name}"] = outcome["profile"]  # Profile log-likelihood values.
@@ -140,8 +145,11 @@ def main(argv):
                     "noise_level": condition["noise_level"],  # Relative noise level eta.
                     "parameter": name,  # Name of the profiled parameter.
                     "classification": verdict["classification"],  # Practically identifiable or not.
+                    # Lower end of the interval in natural units, when it exists.
                     "lower": "" if verdict["lower"] is None else float(np.exp(verdict["lower"])),
+                    # Upper end of the interval in natural units, when it exists.
                     "upper": "" if verdict["upper"] is None else float(np.exp(verdict["upper"])),
+                    # Largest profile value over the grid, when it exists.
                     "maximum_loglik": "" if verdict["maximum"] is None else verdict["maximum"],
                     "truth": float(np.exp(truth[position])),  # True value of the parameter.
                 }

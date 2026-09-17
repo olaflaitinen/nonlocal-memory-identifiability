@@ -127,13 +127,18 @@ def main(argv):
     noises = [float(value) for value in settings["noise_levels"]]  # Noise levels of the study.
     records = []  # Accumulator for the rows of the discrimination table.
     for condition in design["transient"]:  # Select the generating conditions of the study.
+        # Whether the perceptual range of this condition enters the study.
         matches_radius = any(abs(condition["radius"] - value) < 1.0e-12 for value in radii)
+        # Whether the noise level of this condition enters the study.
         matches_noise = any(abs(condition["noise_level"] - value) < 1.0e-12 for value in noises)
+        # Only the configured combinations take part in the discrimination study.
         if not (matches_radius and matches_noise and condition["sampling"] == settings["sampling"]):
             continue  # Skip conditions that are not part of the discrimination study.
         contributions = {}  # Pointwise contributions of each fitted kernel family.
         for fitted_kernel in ("tophat", "gaussian"):  # Fit both kernel families to these data.
+            # Fit the current kernel family to the data of this condition.
             draws, context, observations = fit_kernel(condition, fitted_kernel, config, settings)
+            # Pointwise contributions of the retained draws of this fit.
             contributions[fitted_kernel] = pointwise_contributions(
                 draws,  # Retained draws of this fit.
                 context,  # Context of the fitted forward map.
@@ -142,6 +147,7 @@ def main(argv):
             )  # Contributions used by the leave one out comparison.
         comparison = compare_models(contributions)  # Leave one out comparison of the two fits.
         preferred = comparison[0]["model"]  # Kernel family preferred by the comparison.
+        # Index m_star of Corollary 1, reported for the top-hat conditions.
         index = m_star(condition["radius"], length) if condition["kernel"] == "tophat" else ""
         for entry in comparison:  # Record one row per fitted kernel family.
             records.append(  # One row of the discrimination table.

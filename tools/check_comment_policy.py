@@ -46,6 +46,9 @@ EXEMPT_PATHS = {
 # Tokens that may terminate a bracketed continuation without their own comment.
 CONTINUATION_CHARACTERS = set(")]}:,\\")  # Closing brackets and separators only.
 
+# Keywords that only terminate a block of a shell script or of a Makefile.
+BLOCK_TERMINATORS = {"fi", "done", "esac", "else", "endif", ";;"}  # Block terminators.
+
 
 # Collect the files that the policy applies to.
 # Arguments:
@@ -209,25 +212,39 @@ def check_line_comments(path, text):
     problems = []  # Accumulator for the violations of this file.
     lines = text.splitlines()  # Physical lines of the file.
     previous_is_comment = False  # True when the previous line was a comment line.
+    previous_continues = False  # True when the previous line ended with a continuation.
     for number, line in enumerate(lines, start=1):  # Walk the lines of the file.
         stripped = line.strip()  # Textual content without surrounding whitespace.
+        continues = stripped.endswith("\\")  # Whether this line continues on the next one.
         if not stripped:  # A blank line separates logical units.
             previous_is_comment = False  # A blank line cancels a preceding comment.
+            previous_continues = False  # A blank line cannot continue a command.
             continue  # Blank lines never require a comment.
         if stripped.startswith("#"):  # The whole line is a comment.
             previous_is_comment = True  # The next code line is covered by this comment.
+            previous_continues = False  # A comment line does not continue a command.
             continue  # Comment lines satisfy the policy by construction.
         if stripped.startswith("---") or stripped == "...":  # YAML document markers.
             previous_is_comment = False  # Document markers carry no comment forward.
+            previous_continues = continues  # Remember whether this line continues.
             continue  # Structural markers of a YAML stream need no comment.
         if "#" in blank_quoted_regions(line):  # An inline comment follows the code.
             previous_is_comment = False  # The comment belongs to this line only.
+            previous_continues = continues  # Remember whether this line continues.
             continue  # The policy is satisfied for this line.
         if previous_is_comment:  # The preceding line was a standalone comment.
             previous_is_comment = False  # The comment covers exactly one code line.
+            previous_continues = continues  # Remember whether this line continues.
             continue  # The policy is satisfied for this line.
         if is_pure_continuation(stripped):  # Only closing brackets or separators.
+            previous_continues = continues  # Remember whether this line continues.
             continue  # The comment of the opening line covers this terminator.
+        if stripped in BLOCK_TERMINATORS:  # A keyword that only closes a block.
+            previous_continues = continues  # Remember whether this line continues.
+            continue  # The comment of the opening line covers this terminator.
+        if previous_continues:  # The previous line ended with a line continuation.
+            previous_continues = continues  # Remember whether this line continues.
+            continue  # The comment of the opening line covers the whole command.
         problems.append(f"{path}:{number}: line without an explanatory comment: {stripped}")  # Report.
     return problems  # Return every violation found in this file.
 

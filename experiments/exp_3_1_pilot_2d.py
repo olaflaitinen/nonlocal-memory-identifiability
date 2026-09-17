@@ -105,6 +105,7 @@ def main(argv):
     solver = config["solver"]  # Block that describes the numerical resolutions.
     length = float(design["domain_length"])  # Side length L of the periodic square.
     t_final = float(design["observation_time"])  # Upper end T of the observation window.
+    # Directory that receives the archives of the two-dimensional data.
     directory = ensure_dir(arguments.output_dir or Path("results/raw") / str(config["experiment"]))
     conditions = conditions_2d(config)  # Two-dimensional conditions of Section 5.4.
     if arguments.condition_index is not None:  # A single condition was requested.
@@ -120,10 +121,13 @@ def main(argv):
         }
         n_reference = int(settings["reference_points"])  # Grid size of the reference solution.
         dense_times = np.linspace(0.0, t_final, DENSE_RECORDS)  # Dense record grid.
+        mean_density = float(design["mean_density"])  # Mean density u_bar of the uniform state.
+        amplitude = float(design["perturbation_amplitude"])  # Amplitude of the perturbation.
         reference = simulate_2d(  # Reference solve at the two-dimensional reference resolution.
             params,  # Model parameters of the condition.
             condition["kernel"],  # Detection kernel family of the condition.
-            initial_density_2d(n_reference, length, float(design["mean_density"]), float(design["perturbation_amplitude"])),
+            # Initial density of the two-dimensional reference solve.
+            initial_density_2d(n_reference, length, mean_density, amplitude),
             float(design["initial_map"]),  # Initial cognitive map of Section 4.2.
             t_final,  # Upper end T of the observation window.
             float(settings["reference_time_step"]),  # Time step of the reference solution.
@@ -136,9 +140,11 @@ def main(argv):
         u_max = float(np.max(reference["density"]))  # Largest density of the reference solution.
         n_space = int(condition["n_space"])  # Number of spatial sample points along each axis.
         stride = n_reference // n_space  # Stride that selects the equally spaced sample points.
+        # Indices of the equally spaced observation times of the design.
         time_index = np.round(np.linspace(0, DENSE_RECORDS - 1, int(condition["n_time"]))).astype(int)
         clean = reference["density"][np.ix_(time_index)][:, ::stride, ::stride]  # Sampled values.
         generator = generator_from_sequence(np.random.SeedSequence(int(condition["seed"])))  # Seed.
+        # Noisy observations of this condition, following equation (9).
         noisy, sigma = add_gaussian_noise(clean, condition["noise_level"], u_max, generator)
         write_hdf5(  # Archive of the generated two-dimensional data of this condition.
             directory / f"data2d_{condition['index']:03d}.h5",  # Archive of this condition.
@@ -177,6 +183,7 @@ def main(argv):
                 "seed": condition["seed"],  # Deterministic seed of the condition.
             }
         )  # Row appended to the pilot table.
+        # Report the condition whose data have just been generated.
         print(f"two-dimensional condition {condition['index']:03d} {condition['identifier']}")
     summary = Path("results/summary") / f"{config['experiment']}_pilot_2d.csv"  # Summary path.
     write_csv(summary, records, list(records[0].keys()))  # Write the tracked summary table.

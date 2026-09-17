@@ -147,6 +147,7 @@ def main(argv):
             settings["wall_time_limit"],  # Wall time after which the run stops cleanly.
             int(condition["seed"]),  # Seed recorded in the output metadata.
         )  # Chain and diagnostics of this run.
+        # Report the number of ensemble steps completed for this condition.
         print(f"condition {condition['index']:03d}: {result['iterations']} ensemble steps")
         if not result["complete"]:  # The wall-time guard stopped the run before completion.
             continue  # The summary is written once the run has finished in a later block.

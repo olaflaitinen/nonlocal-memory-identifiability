@@ -69,10 +69,12 @@ def main(argv):
         ratios = np.array([float(row["median_aggregation_ratio"]) for row in rows])  # Ratios.
         widths = np.array(  # Relative width of the credible interval of the perceptual range.
             [  # One entry per fitted individual of the current model.
+                # Relative width of the credible interval of this individual.
                 (float(row["upper_radius"]) - float(row["lower_radius"])) / float(row["median_radius"])
                 for row in rows  # Fits of the current model.
             ]
         )  # Relative widths used to describe how well the range is constrained.
+        # Individuals for which the current model ranks first in the comparison.
         preferred = [row for row in comparison if row["model"] == model and row["loo_rank"] == "1"]
         records.append(  # One row of the pooled summary table of Section 6.
             {  # Pooled summary of the current candidate model across individuals.
@@ -83,8 +85,10 @@ def main(argv):
                 "max_radius_m": float(np.max(radii)),  # Largest median perceptual range.
                 "median_aggregation_ratio": float(np.median(ratios)),  # Median aggregation ratio.
                 "median_relative_width_radius": float(np.median(widths)),  # Median relative width.
+                # Number of fits of this model that met the convergence criteria.
                 "n_converged": sum(1 for row in rows if row["converged"].lower() == "true"),
                 "n_preferred": len(preferred),  # Individuals for which this model ranks first.
+                # Citation of the data package, carried through every output.
                 "data_citation": "Latham and Boutin (2019) https://doi.org/10.5441/001/1.7vr1k987",
             }
         )  # Row appended to the pooled summary table.
@@ -92,6 +96,7 @@ def main(argv):
     agree = [row for row in comparison if str(row["rankings_agree"]).lower() == "true"]  # Checks.
     if comparison:  # The robustness check is reported only when a comparison exists.
         share = len(agree) / len(comparison)  # Share of rows whose two rankings agree.
+        # Report how often the two cross-validation rankings agree.
         print(f"leave one block out and leave one out rankings agree in {share:.2f} of the rows")
     summary = folder / f"{experiment}_wolf_summary.csv"  # Path of the pooled summary table.
     write_csv(summary, records, list(records[0].keys()))  # Write the tracked summary table.

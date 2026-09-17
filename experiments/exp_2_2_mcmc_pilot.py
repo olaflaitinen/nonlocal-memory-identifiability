@@ -111,7 +111,9 @@ def main(argv):
                     "ess_per_iteration": float(smallest) / max(1, kept.shape[0]),  # Efficiency.
                 }
             )  # Row appended to the pilot table.
-            print(f"pilot {condition['identifier']} scale {float(scale):.3f}: acceptance {result['acceptance_rate']:.3f}")
+            rate = result["acceptance_rate"]  # Empirical acceptance rate of this pilot chain.
+            # Report the acceptance rate obtained at this proposal scale.
+            print(f"pilot {condition['identifier']} scale {float(scale):.3f}: acceptance {rate:.3f}")
     summary = Path("results/summary") / f"{config['experiment']}_mcmc_pilot.csv"  # Summary path.
     write_csv(summary, records, list(records[0].keys()))  # Write the tracked summary table.
     best = max(records, key=lambda record: record["ess_per_iteration"])  # Most efficient setting.

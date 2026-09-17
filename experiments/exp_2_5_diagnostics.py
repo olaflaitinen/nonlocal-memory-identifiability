@@ -45,6 +45,7 @@ def main(argv):
     arguments = parse_arguments(argv)  # Parsed command line arguments of the script.
     config = load_experiment_config(arguments.config)  # Merged and validated configuration.
     design = design_1d(config)  # Factorial design of the one-dimensional experiments.
+    # Directory that holds the archives of the sampled chains.
     directory = Path(arguments.output_dir or Path("results/raw") / str(config["experiment"]))
     burn_in = float(config["mcmc"]["burn_in_fraction"])  # Fraction discarded as burn-in.
     records = []  # Accumulator for the rows of the diagnostics table.
@@ -79,6 +80,7 @@ def main(argv):
     rerun = Path("results/summary") / f"{config['experiment']}_rerun_list.csv"  # Rerun list path.
     rows = [{"identifier": name} for name in failures]  # One row per condition to be rerun.
     write_csv(rerun, rows or [{"identifier": ""}], ["identifier"])  # Write the rerun list.
+    # Report the size of the diagnostics table and of the rerun list.
     print(f"wrote {summary} with {len(records)} row(s) and {len(failures)} condition(s) to rerun")
     return 0  # Signal success to the caller.
 

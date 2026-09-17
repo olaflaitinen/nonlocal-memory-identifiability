@@ -63,10 +63,12 @@ def main(argv):
         return 0  # Signal success, since the absence of the input is not an error here.
     index_1d = {}  # Mapping from the factor combination to the one-dimensional widths.
     for row in rows_1d:  # Index the one-dimensional rows by their factor combination.
+        # Factor combination that identifies a row of either summary table.
         key = (row["kernel"], f"{float(row['radius']):.3f}", f"{float(row['noise_level']):.2f}")
         index_1d[key] = row  # Store the one-dimensional row under its factor combination.
     records = []  # Accumulator for the rows of the comparison table.
     for row in rows_2d:  # Pair each two-dimensional row with its one-dimensional counterpart.
+        # Factor combination that identifies a row of either summary table.
         key = (row["kernel"], f"{float(row['radius']):.3f}", f"{float(row['noise_level']):.2f}")
         partner = index_1d.get(key)  # One-dimensional row with the same factor combination.
         for name in PARAMETER_NAMES:  # Compare the relative width of every parameter.

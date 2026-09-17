@@ -89,7 +89,9 @@ def main(argv):
         if area is None:  # The study area of this individual has not been built.
             print(f"missing study area for individual {row['individual_id']}")  # Report the gap.
             continue  # Continue with the next included individual.
+        # Aggregation ratio at the geometric centre of its prior range.
         ratio = float(np.sqrt(float(settings["kappa_bounds"][0]) * float(settings["kappa_bounds"][1])))
+        # Perceptual range at the geometric centre of its prior range.
         radius = float(np.sqrt(float(settings["radius_bounds"][0]) * float(settings["radius_bounds"][1])))
         started = time.perf_counter()  # Wall clock reading before the timed forward solve.
         result = masked_steady_state(  # Fixed-point forward solve on the study-area grid.
@@ -110,7 +112,9 @@ def main(argv):
                 "converged": result["converged"],  # Whether the solver reached the tolerance.
                 "n_walkers": int(settings["n_walkers"]),  # Number of walkers of the sampler.
                 "pilot_steps": int(settings["pilot_steps"]),  # Ensemble steps of the pilot.
+                # Projected cost of the full run at the configured settings.
                 "projected_hours": elapsed * int(settings["n_walkers"]) * int(settings["n_steps"]) / 3600.0,
+                # Citation of the data package, carried through every output.
                 "data_citation": "Latham and Boutin (2019) https://doi.org/10.5441/001/1.7vr1k987",
             }
         )  # Row appended to the pilot table.

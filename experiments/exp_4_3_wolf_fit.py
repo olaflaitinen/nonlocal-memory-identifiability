@@ -151,10 +151,12 @@ def main(argv):
     config = load_experiment_config(arguments.config)  # Merged and validated configuration.
     settings = config["wolf"]  # Settings of the application to the wolf data.
     source = Path("results/raw/exp_4_1")  # Directory that holds the output of Experiment 4.1.
+    # Directory that receives the sampler backends of the wolf fits.
     directory = ensure_dir(arguments.output_dir or Path("results/raw") / str(config["experiment"]))
     rows = read_wolf_summary(str(config["experiment"]))  # Summary table of Experiment 4.1.
     fixes_path = source / "cleaned_fixes.csv"  # Internal cleaned table of location fixes.
     if not rows or not fixes_path.is_file():  # The preprocessing has not been run yet.
+        # Report the missing input rather than failing with an unclear error.
         print("no preprocessed wolf data were found, run exp_4_1_wolf_preprocess.py first")
         return 0  # Signal success, since the absence of the input is not an error here.
     fixes = pandas.read_csv(fixes_path)  # Cleaned and projected table of location fixes.
@@ -176,6 +178,7 @@ def main(argv):
             continue  # Continue with the next included individual.
         contributions = {}  # Pointwise contributions of each candidate model.
         for kernel in settings["kernels"]:  # Fit both detection kernel families.
+            # Data of this individual in the layout used by the likelihood.
             individual = build_individual(identifier, fixes, area, float(row["n_eff"]), kernel)
 
             # Unnormalised log posterior of this individual and kernel family.
@@ -196,6 +199,7 @@ def main(argv):
                 settings["wall_time_limit"],  # Wall time after which the run stops cleanly.
                 int(settings["seed"]) + position,  # Seed recorded in the output metadata.
             )  # Chain and diagnostics of this fit.
+            # Report the number of ensemble steps completed for this fit.
             print(f"individual {identifier} kernel {kernel}: {result['iterations']} steps")
             if not result["complete"]:  # The wall-time guard stopped the run before completion.
                 continue  # The summary is written once the run has finished in a later block.
@@ -204,6 +208,7 @@ def main(argv):
             kept = np.exp(np.transpose(chain[burn_in:], (1, 0, 2)))  # Draws in natural units.
             statistics = convergence_statistics(kept, PARAMETER_NAMES)  # Convergence diagnostics.
             flat = np.log(kept.reshape(-1, kept.shape[-1]))  # Pooled draws, in log space.
+            # Pointwise contributions of the retained draws of this fit.
             contributions[kernel] = draw_contributions(flat, individual, int(settings["n_draws"]))
             truth = {name: 1.0 for name in PARAMETER_NAMES}  # No true value exists for real data.
             summary_values = posterior_summary(kept, PARAMETER_NAMES, truth)  # Posterior summaries.
@@ -214,6 +219,7 @@ def main(argv):
                 "converged": has_converged(statistics),  # Whether the criteria of Section 4.4 hold.
                 "max_rhat": max(statistics[name]["rhat"] for name in PARAMETER_NAMES),  # Worst.
                 "min_ess": min(statistics[name]["ess_bulk"] for name in PARAMETER_NAMES),  # Worst.
+                # Citation of the data package, carried through every output.
                 "data_citation": "Latham and Boutin (2019) https://doi.org/10.5441/001/1.7vr1k987",
             }
             for name in PARAMETER_NAMES:  # Record the posterior summary of every parameter.
@@ -223,6 +229,7 @@ def main(argv):
             posterior_records.append(record)  # Row appended to the posterior summary table.
         if len(contributions) < len(settings["kernels"]):  # Not every fit of this animal finished.
             continue  # The comparison is written once every fit of the animal is complete.
+        # Data of this individual used by the model without nonlocal advection.
         uniform_individual = build_individual(identifier, fixes, area, float(row["n_eff"]), "tophat")
         _, uniform_pointwise = uniform_loglik(uniform_individual)  # Contributions of the uniform model.
         reference_draws = next(iter(contributions.values())).shape[0]  # Number of retained draws.
@@ -247,6 +254,7 @@ def main(argv):
                     "block_rank": block_rank.index(entry["model"]) + 1,  # Rank under the check.
                     "rankings_agree": loo_rank == block_rank,  # Whether the two rankings agree.
                     "n_blocks": int(np.unique(blocks).size),  # Number of contiguous blocks.
+                    # Citation of the data package, carried through every output.
                     "data_citation": "Latham and Boutin (2019) https://doi.org/10.5441/001/1.7vr1k987",
                 }
             )  # Row appended to the comparison table.

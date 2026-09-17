@@ -130,7 +130,8 @@ def check_file(path):
                 problems.append(f"{path}:{number}:{column}: forbidden pictographic symbol (U+{code:04X})")  # Record.
                 continue  # Continue with the next character of the line.
             if ascii_only and code > 0x7F:  # Non-ASCII in a source or configuration file.
-                problems.append(f"{path}:{number}:{column}: non-ASCII character (U+{code:04X}) in a source file")  # Record.
+                where = f"{path}:{number}:{column}"  # Location of the offending character.
+                problems.append(f"{where}: non-ASCII character (U+{code:04X}) in a source file")  # Record.
     return problems  # Return every violation found in this file.
 
 
