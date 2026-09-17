@@ -1,17 +1,23 @@
 # Reproducibility
 
 This file describes how to reproduce every table, figure and supplementary file
-of the manuscript from a clean clone.
+of the manuscript from a clean clone. None of the experiments below has been run
+yet, so the route is a specification rather than a record: only the test suite,
+the pre-experiment checks and the demonstration configuration have been
+executed so far.
 
 ## System requirements
 
-- Operating system: tested on Linux (Ubuntu 24.04) and on the Red Hat based
-  environment of the CSC Roihu supercomputer.
-- Python 3.12 with the packages pinned in `environment.yml`.
-- R 4.4 with the package `ctmm`, required only by Experiment 4.1.
+- Operating system on which the test suite has been run: Linux (Ubuntu 24.04).
+  No other operating system has been tried, and the Red Hat based environment of
+  the CSC Roihu supercomputer is to be tested.
+- Python 3.12 with the package versions recorded in `environment.yml`.
+- R 4.4 with the package `ctmm`, required only by Experiment 4.1. That step has
+  not yet been run.
 - Hardware: a workstation with at least 8 GB of memory for the smoke
-  configuration and for the one-dimensional experiments; a cluster allocation
-  for the full one-dimensional and two-dimensional sampling experiments.
+  configuration and for the one-dimensional experiments. A cluster allocation is
+  planned for the one-dimensional and two-dimensional sampling experiments of
+  Sections 5.3, 5.4 and 6, which have not yet been run.
 
 ## Installation
 
@@ -156,6 +162,13 @@ The manuscript cites an archived version of this code with a persistent
 identifier, as the research data and code sharing policy of the publisher
 requires. The archive is produced from a tagged release.
 
+Versions 0.0.1 and 0.1.0 are development snapshots, archived before any
+experiment was run, and neither produced the numerical results of the
+manuscript. The version that produces those results will be released as 1.0.0
+once the experiments have been run, and the manuscript will cite its identifier.
+Until then the concept identifier 10.5281/zenodo.22804041 is the identifier of
+the software as a whole.
+
 1. Connect the repository to Zenodo before the release is published. Sign in at
    https://zenodo.org with the GitHub account that owns the repository, open
    the GitHub tab of the Zenodo account settings and enable the switch for
@@ -176,8 +189,8 @@ make smoke
 3. Create an annotated tag on that commit and push it.
 
 ```bash
-git tag -a v0.1.0 -m "Version 0.1.0"
-git push origin v0.1.0
+git tag -a v1.0.0 -m "Version 1.0.0"
+git push origin v1.0.0
 ```
 
 4. Publish a release for the tag, either from the releases page of the
@@ -186,7 +199,7 @@ git push origin v0.1.0
    heading of `CHANGELOG.md`.
 
 ```bash
-gh release create v0.1.0 --title "v0.1.0" --notes-file release-notes.md
+gh release create v1.0.0 --title "v1.0.0" --notes-file release-notes.md
 ```
 
 5. Zenodo mints a digital object identifier for the release within a few
@@ -198,9 +211,9 @@ gh release create v0.1.0 --title "v0.1.0" --notes-file release-notes.md
      statement of the manuscript.
 
 6. The concept identifier that Zenodo assigns alongside the version identifier
-   resolves to the most recent version. Cite the version identifier in the
-   manuscript, so that the citation names the exact code that produced the
-   reported results.
+   resolves to the most recent version. Once 1.0.0 is released, cite its version
+   identifier in the manuscript, so that the citation names the exact code that
+   produced the reported results.
 
 ## Determinism
 
