@@ -8,7 +8,7 @@
       "orcid": "0009-0006-5184-0810"
     }
   ],
-  "description": "Research code accompanying the manuscript on the structural and practical identifiability of perception and memory in nonlocal advection-diffusion models of animal movement. The repository provides Fourier pseudo-spectral and positivity-preserving finite-volume solvers for a nonlocal advection-diffusion model coupled to a cognitive map, the fixed-point characterisation of its stationary states, the reconstruction of the parameters from two Fourier modes, profile likelihood and Bayesian inference on synthetic data across noise levels, sampling designs, perceptual ranges and kernel shapes, and an application to publicly archived wolf Global Positioning System location data.",
+  "description": "Research code accompanying the manuscript on the structural and practical identifiability of perception and memory in nonlocal advection-diffusion models of animal movement. The repository provides Fourier pseudo-spectral and positivity-preserving finite-volume solvers for a nonlocal advection-diffusion model coupled to a cognitive map, the fixed-point characterisation of its stationary states, the reconstruction of the parameters from two Fourier modes, profile likelihood and Bayesian inference on synthetic data across noise levels, sampling designs, perceptual ranges and kernel shapes, and an application to publicly archived wolf Global Positioning System location data. This deposit is a development snapshot, archived before any experiment of the manuscript was run. The version that produces the reported numerical results will be released as 1.0.0.",
   "license": "MPL-2.0",
   "access_right": "open",
   "keywords": [
