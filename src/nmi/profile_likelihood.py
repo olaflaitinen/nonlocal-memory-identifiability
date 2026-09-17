@@ -25,6 +25,9 @@ PROFILE_THRESHOLD = 1.9207296556006175  # One half of the chi squared quantile w
 #   n_starts (int): number of starting points of the nuisance optimisation.
 #   rng (numpy.random.Generator): generator of the random starting points.
 #   initial (numpy.ndarray): starting point of the first nuisance optimisation.
+#   max_iterations (int): cap on the iterations of one local optimisation, or
+#   None for the default of the algorithm. The cap keeps the demonstration
+#   configuration inexpensive and is not used for the reported results.
 # Returns:
 #   dict: the grid of the profiled parameter, the profile values and the
 #   optimal nuisance parameters at every grid value.
@@ -36,9 +39,11 @@ def profile_parameter(
     n_starts=8,  # Number of starting points of the nuisance optimisation.
     rng=None,  # Generator of the random starting points.
     initial=None,  # Starting point of the first nuisance optimisation.
+    max_iterations=None,  # Cap on the iterations of one local optimisation.
 ):  # End of the argument list.
     generator = rng if rng is not None else np.random.default_rng(0)  # Deterministic by default.
     box = [(float(low), float(high)) for low, high in bounds]  # Log-space bounds of the parameters.
+    options = {"maxiter": int(max_iterations)} if max_iterations else None  # Optimiser options.
     lower = np.array([item[0] for item in box])  # Lower bounds of every parameter, in log space.
     upper = np.array([item[1] for item in box])  # Upper bounds of every parameter, in log space.
     grid = np.linspace(lower[index], upper[index], int(n_grid))  # Grid of the profiled parameter.
@@ -69,6 +74,7 @@ def profile_parameter(
                 np.asarray(start, dtype=float),  # Starting point of this local optimisation.
                 method="L-BFGS-B",  # Bound constrained quasi-Newton algorithm of Section 4.3.
                 bounds=[box[position] for position in free],  # Bounds of the nuisance parameters.
+                options=options,  # Optional cap on the iterations of this optimisation.
             )  # Result of one local optimisation of the nuisance parameters.
             candidate = -float(outcome.fun)  # Log-likelihood attained by this local optimum.
             if candidate > best_value:  # This local optimum improves on the previous ones.

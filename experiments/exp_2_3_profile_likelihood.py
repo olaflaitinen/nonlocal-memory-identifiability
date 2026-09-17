@@ -128,6 +128,7 @@ def main(argv):
                 int(settings["n_starts"]),  # Number of starting points of the optimisation.
                 generator,  # Generator of the random starting points.
                 truth,  # Warm start of the first grid value, at the true parameters.
+                settings.get("max_iterations"),  # Optional cap on the local optimisations.
             )  # Profile of the current parameter.
             # Classification of the confidence interval of the profiled parameter.
             verdict = classify_interval(outcome["grid"], outcome["profile"], float(settings["threshold"]))

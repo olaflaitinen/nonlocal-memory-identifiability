@@ -166,6 +166,8 @@ profile:
   threshold: 1.920729655600618
   # Seed of the random starting points of the nuisance optimisation.
   seed: 913
+  # Cap on the iterations of one local optimisation, which keeps the demonstration short.
+  max_iterations: 12
   # The smoke run imposes no wall time limit.
   wall_time_limit: null
 # Reduced settings of the one-dimensional sampler.
