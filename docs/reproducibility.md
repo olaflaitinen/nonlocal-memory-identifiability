@@ -1,0 +1,160 @@
+# Reproducibility
+
+This file describes how to reproduce every table, figure and supplementary file
+of the manuscript from a clean clone.
+
+## System requirements
+
+- Operating system: tested on Linux (Ubuntu 24.04) and on the Red Hat based
+  environment of the CSC Roihu supercomputer.
+- Python 3.12 with the packages pinned in `environment.yml`.
+- R 4.4 with the package `ctmm`, required only by Experiment 4.1.
+- Hardware: a workstation with at least 8 GB of memory for the smoke
+  configuration and for the one-dimensional experiments; a cluster allocation
+  for the full one-dimensional and two-dimensional sampling experiments.
+
+## Installation
+
+```bash
+git clone https://github.com/olaflaitinen/nonlocal-memory-identifiability.git
+cd nonlocal-memory-identifiability
+conda env create -f environment.yml
+conda activate nmi
+make install
+```
+
+Expected installation time: to be measured.
+
+Optional, required only for Experiment 4.1:
+
+```bash
+Rscript R/install_r_packages.R
+```
+
+## Checks
+
+```bash
+make policy     # character, comment and licence header policies
+make lint       # ruff
+make test       # pytest without the slow tests
+make test-all   # pytest including the slow tests
+```
+
+Expected run time of `make test`: to be measured.
+Expected run time of `make test-all`: to be measured.
+
+## Pre-experiment checks
+
+```bash
+make precheck
+```
+
+This runs `precheck/check_proofs.py`, which verifies Propositions 1 and 3,
+Lemma 1, Theorem 2 and Corollary 1; `precheck/design_params.py`, which
+reproduces the values of Table 3 and verifies the stationary identity at the
+resulting steady states; and `precheck/timing.py`, which measures the cost of
+one forward solve at the candidate resolutions.
+
+Expected run time: to be measured.
+
+## Demonstration
+
+```bash
+make smoke
+```
+
+The smoke configuration runs every stage of the pipeline once on a small
+design: four transient conditions, a coarse grid and short chains. It writes
+untracked raw output under `results/raw/smoke/`, summaries named `smoke_*.csv`
+under `results/summary/`, and the figures and tables under `results/figures/`
+and `results/tables/`. The smoke outputs demonstrate that the pipeline runs end
+to end; they are not the results reported in the manuscript and are not tracked
+by version control.
+
+Expected run time: to be measured.
+
+## Full reproduction
+
+The order below reflects the dependencies between the experiments. The
+configuration files are listed in `docs/experiments.md`.
+
+1. Generate the synthetic data of every condition.
+
+```bash
+python experiments/make_synthetic_data.py --config configs/exp_2_4_mcmc_1d.yaml
+```
+
+2. Verify the solver and the steady states.
+
+```bash
+python experiments/exp_0_3_checkpoint_test.py --config configs/exp_0_3_checkpoint_test.yaml
+python experiments/exp_1_1_convergence_1d.py --config configs/exp_1_1_convergence_1d.yaml
+python experiments/exp_1_2_steady_state.py --config configs/exp_1_2_steady_state.yaml
+python experiments/exp_1_3_convergence_2d.py --config configs/exp_1_3_convergence_2d.yaml
+```
+
+3. Run the structural checks and the sampler pilot.
+
+```bash
+python experiments/exp_2_1_structural_checks.py --config configs/exp_2_1_structural_checks.yaml
+python experiments/exp_2_2_mcmc_pilot.py --config configs/exp_2_2_mcmc_pilot.yaml
+```
+
+4. Run the profile likelihood and the one-dimensional sampling on the cluster.
+
+```bash
+bash slurm/submit_chain.sh slurm/exp_2_3_profile_likelihood.sbatch 1
+bash slurm/submit_chain.sh slurm/exp_2_4_mcmc_1d.sbatch 4
+```
+
+5. Collect the diagnostics and rerun any condition that failed the criteria.
+
+```bash
+python experiments/exp_2_5_diagnostics.py --config configs/exp_2_4_mcmc_1d.yaml
+```
+
+6. Run the kernel discrimination study and the two-dimensional experiments.
+
+```bash
+python experiments/exp_2_6_kernel_discrimination.py --config configs/exp_2_6_kernel_discrimination.yaml
+python experiments/exp_3_1_pilot_2d.py --config configs/exp_3_1_pilot_2d.yaml
+bash slurm/submit_chain.sh slurm/exp_3_2_mcmc_2d.sbatch 4
+python experiments/exp_3_3_analysis_2d.py --config configs/exp_3_2_mcmc_2d.yaml
+```
+
+7. Run the wolf application. Download the data package first, as described in
+   `data/README.md`.
+
+```bash
+python experiments/exp_4_1_wolf_preprocess.py --config configs/exp_4_wolf.yaml
+python experiments/exp_4_2_wolf_pilot.py --config configs/exp_4_wolf.yaml
+bash slurm/submit_chain.sh slurm/exp_4_3_wolf_fit.sbatch 4
+python experiments/exp_4_4_wolf_summary.py --config configs/exp_4_wolf.yaml
+```
+
+8. Build the figures, the tables and the electronic supplement.
+
+```bash
+make tables
+make figures
+make online-resource
+```
+
+## Expected outputs
+
+| Output | Location |
+|---|---|
+| Table 3 to Table 8 | `results/tables/TableN.csv` and `results/tables/TableN.tex` |
+| Fig. 1 to Fig. 7 | `results/figures/FigN.eps` with a preview `FigN.pdf` |
+| Online Resource 1 | `results/tables/ESM_1.csv` |
+| Tracked summaries | `results/summary/*.csv` |
+| Raw output and checkpoints | `results/raw/` and `checkpoints/`, both untracked |
+
+## Determinism
+
+Every condition carries a seed spawned from the global seed of its
+configuration with `numpy.random.SeedSequence`, in index order, and the seed is
+recorded in the output metadata. Every output file also records the git commit
+of the working tree, the hash of the configuration, the versions of the
+scientific libraries and the time of the run, so that a result can be traced
+back to the exact code and settings that produced it.
