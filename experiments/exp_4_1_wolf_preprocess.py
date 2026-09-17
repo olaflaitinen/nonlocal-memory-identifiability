@@ -103,6 +103,10 @@ def regression_checks(events, reference):
 def main(argv):
     arguments = parse_arguments(argv)  # Parsed command line arguments of the script.
     config = load_experiment_config(arguments.config)  # Merged and validated configuration.
+    if "wolf" not in config:  # The configuration does not describe the wolf application.
+        # Report the mismatch rather than failing with an unclear key error.
+        print("this configuration has no wolf block, use configs/exp_4_wolf.yaml")
+        return 0  # Signal success, since an unsuitable configuration is not an error here.
     settings = config["wolf"]  # Settings of the application to the wolf data.
     raw = Path(settings["raw_directory"])  # Directory that holds the downloaded data package.
     event_path = locate_file(raw, EVENT_FILE_NAMES)  # Event file of the data package.

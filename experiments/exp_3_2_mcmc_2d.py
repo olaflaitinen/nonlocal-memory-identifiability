@@ -16,6 +16,7 @@ from pathlib import Path  # Portable filesystem paths.
 import numpy as np  # Numerical arrays and random number generation.
 
 from nmi.config import load_experiment_config  # Configuration loader with base inheritance.
+from nmi.design import conditions_2d, initial_density_2d  # Two-dimensional design helpers.
 from nmi.diagnostics import convergence_statistics, has_converged, posterior_summary  # Diagnostics.
 from nmi.io import ensure_dir, read_hdf5, write_csv  # Archive reader and summary writer.
 from nmi.likelihood import gaussian_loglik  # Gaussian log-likelihood of equation (9).
@@ -23,7 +24,6 @@ from nmi.mcmc_ensemble import initial_positions, run_ensemble  # Ensemble sample
 from nmi.priors import transient_prior  # Log-uniform prior on the four free parameters.
 from nmi.spectral_2d import simulate_2d  # Two-dimensional pseudo-spectral solver.
 
-from experiments.exp_3_1_pilot_2d import conditions_2d, initial_density_2d  # Shared design helpers.
 
 # Names of the sampled parameters, in the order used by every sampler.
 PARAMETER_NAMES = ("diffusion", "advection", "memory_decay", "radius")  # Reduced parameter vector.

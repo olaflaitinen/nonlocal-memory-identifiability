@@ -11,7 +11,6 @@
 # Outputs: a tracked summary under results/summary/.
 
 import argparse  # Command line interface of the experiment script.
-import csv  # Reader of the tracked summary table of Experiment 4.1.
 import sys  # Process exit status of the experiment script.
 import time  # Wall clock measurement of the cost of one forward solve.
 from pathlib import Path  # Portable filesystem paths.
@@ -19,8 +18,9 @@ from pathlib import Path  # Portable filesystem paths.
 import numpy as np  # Numerical arrays and random number generation.
 
 from nmi.config import load_experiment_config  # Configuration loader with base inheritance.
-from nmi.io import write_csv  # Writer of the tracked summary table.
+from nmi.io import read_wolf_summary, write_csv  # Summary reader and writer.
 from nmi.wolf.masked_solver import masked_steady_state  # Stationary density on the masked grid.
+from nmi.wolf.study_area import load_study_area  # Loader of the study area of one individual.
 
 
 # Parse the command line arguments of the script.
@@ -35,38 +35,6 @@ def parse_arguments(argv):
     return parser.parse_args(argv)  # Parsed command line arguments of the script.
 
 
-# Read the summary table of Experiment 4.1.
-# Arguments:
-#   experiment (str): the experiment identifier used in the file name.
-# Returns:
-#   list: one dictionary per individual, or an empty list when it is absent.
-def read_wolf_summary(experiment):
-    location = Path("results/summary") / f"{experiment}_wolf_data.csv"  # Summary of Experiment 4.1.
-    if not location.is_file():  # The preprocessing has not been run yet.
-        return []  # Report the absence as an empty table.
-    with location.open(encoding="utf-8", newline="") as handle:  # Open the summary for reading.
-        return list(csv.DictReader(handle))  # One dictionary per individual.
-
-
-# Load the study area of one individual from its archive.
-# Arguments:
-#   identifier (str): the animal identifier of the individual.
-#   directory (pathlib.Path): the directory that holds the archives.
-# Returns:
-#   dict: the mask, the cell centres and the cell width, or None when absent.
-def load_study_area(identifier, directory):
-    path = directory / f"study_area_{identifier}.npz"  # Archive of this individual.
-    if not path.is_file():  # The study area of this individual has not been built.
-        return None  # Report the absence to the caller.
-    with np.load(path) as archive:  # Open the archive of the study area.
-        return {  # Study area mapping in the layout used by the solvers.
-            "mask": np.asarray(archive["mask"], dtype=bool),  # Boolean mask of the study area.
-            "x_centres": np.asarray(archive["x_centres"], dtype=float),  # Cell centres, first axis.
-            "y_centres": np.asarray(archive["y_centres"], dtype=float),  # Cell centres, second axis.
-            "cell": float(np.asarray(archive["cell"], dtype=float)[0]),  # Cell width in metres.
-        }
-
-
 # Entry point of the wolf pilot.
 # Arguments:
 #   argv (list): command line arguments after the program name.
@@ -75,6 +43,10 @@ def load_study_area(identifier, directory):
 def main(argv):
     arguments = parse_arguments(argv)  # Parsed command line arguments of the script.
     config = load_experiment_config(arguments.config)  # Merged and validated configuration.
+    if "wolf" not in config:  # The configuration does not describe the wolf application.
+        # Report the mismatch rather than failing with an unclear key error.
+        print("this configuration has no wolf block, use configs/exp_4_wolf.yaml")
+        return 0  # Signal success, since an unsuitable configuration is not an error here.
     settings = config["wolf"]  # Settings of the application to the wolf data.
     directory = Path(arguments.output_dir or "results/raw/exp_4_1")  # Output of Experiment 4.1.
     rows = read_wolf_summary(str(config["experiment"]))  # Summary table of Experiment 4.1.

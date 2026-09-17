@@ -13,7 +13,7 @@
 
 import numpy as np  # Numerical arrays and random number generation.
 
-from nmi.grids import periodic_grid_1d  # Equispaced grid of the periodic domain.
+from nmi.grids import periodic_grid_1d, periodic_grid_2d  # Equispaced periodic grids.
 from nmi.linear_theory import m_star  # Index of the first nonpositive top-hat multiplier.
 from nmi.random_state import sequence_label, spawn_seed_sequences  # Deterministic seeding.
 from nmi.steady_state import critical_kappa  # Onset value of the aggregation ratio.
@@ -187,3 +187,59 @@ def sampling_indices(n_space, n_time, n_points, n_records):
     space = np.arange(n_space) * (n_points // n_space)  # Equally spaced points on the torus.
     time = np.round(np.linspace(0, n_records - 1, n_time)).astype(int)  # Equally spaced records.
     return space, time  # Index arrays used by the observation model of equation (9).
+
+
+# Initial density of the two-dimensional experiments.
+# The shape is a fixed combination of the lowest modes of the square, so that
+# every two-dimensional run starts from the same perturbation of the uniform
+# state.
+# Arguments:
+#   n_points (int): number of grid points in each coordinate direction.
+#   domain_length (float): side length L of the periodic square.
+#   mean_density (float): mean density u_bar of the uniform state.
+#   amplitude (float): amplitude epsilon of the initial perturbation.
+# Returns:
+#   numpy.ndarray: the initial density of shape (n_points, n_points).
+def initial_density_2d(n_points, domain_length, mean_density, amplitude):
+    grid_x, grid_y = periodic_grid_2d(int(n_points), float(domain_length))  # Cell coordinates.
+    wave = 2.0 * np.pi / float(domain_length)  # Wavenumber of the first mode of the square.
+    shape = np.cos(wave * grid_x) + np.cos(wave * grid_y)  # Two lowest axis aligned modes.
+    shape = shape + 0.5 * np.cos(wave * (grid_x + grid_y))  # A diagonal mode of half amplitude.
+    shape = shape / float(np.max(np.abs(shape)))  # Scale to unit maximum absolute value.
+    return float(mean_density) * (1.0 + float(amplitude) * shape)  # Perturbed uniform state.
+
+
+# Conditions of the two-dimensional experiments of Section 5.4.
+# The conditions are enumerated in lexicographic order of the tuple
+# (kernel, perceptual range, noise level), exactly as in one dimension.
+# Arguments:
+#   config (dict): the whole configuration mapping.
+# Returns:
+#   list: the selected two-dimensional conditions, with index and identifier.
+def conditions_2d(config):
+    settings = config["pilot_2d"]  # Settings of the two-dimensional experiments.
+    design = config["design"]  # Block that describes the synthetic design.
+    kernels = sorted(design["kernels"])  # Kernel families, in alphabetical order.
+    radii = sorted(float(value) for value in settings["radii"])  # Perceptual ranges, ascending.
+    noises = sorted(float(value) for value in settings["noise_levels"])  # Noise levels, ascending.
+    combinations = []  # Accumulator for the factor combinations in lexicographic order.
+    for kernel in kernels:  # Outermost factor of the lexicographic ordering.
+        for radius in radii:  # Second factor of the lexicographic ordering.
+            for noise in noises:  # Innermost factor of the lexicographic ordering.
+                combinations.append((kernel, radius, noise))  # Record the factor combination.
+    sequences = spawn_seed_sequences(int(design["seed"]) + 1, len(combinations))  # Seeds.
+    selected = []  # Accumulator for the selected two-dimensional conditions.
+    for index, (kernel, radius, noise) in enumerate(combinations):  # Build each condition.
+        values = table3_values(kernel, radius, design)  # Parameter values of Table 3.
+        record = dict(values)  # Copy so that the Table 3 values are not modified in place.
+        record["index"] = index  # Stable integer index of the two-dimensional condition.
+        record["identifier"] = f"k-{kernel}_R-{radius:.3f}_eta-{noise:.2f}_2d"  # Stable label.
+        record["noise_level"] = float(noise)  # Relative noise level eta of the condition.
+        record["diffusion"] = float(design["diffusion"])  # True diffusion rate d.
+        record["memory_decay"] = float(design["memory_decay"])  # True memory decay rate mu.
+        record["beta"] = float(design["beta"])  # True memory uptake rate beta.
+        record["n_space"] = int(settings["n_space"])  # Spatial sample points along each axis.
+        record["n_time"] = int(settings["n_time"])  # Number of observation times.
+        record["seed"] = sequence_label(sequences[index])  # Deterministic seed of the condition.
+        selected.append(record)  # Store the completed two-dimensional condition.
+    return selected  # The two-dimensional conditions of Section 5.4.

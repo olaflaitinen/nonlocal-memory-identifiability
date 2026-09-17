@@ -66,3 +66,9 @@ follows Keep a Changelog, and the project adheres to semantic versioning.
   was dominated by the discretisation error. The test now uses the same
   twenty per cent supercriticality as the design of Section 4.2, with the onset
   value formed from the cosine modes admitted by the no-flux boundary.
+- The two-dimensional inference script and the wolf fitting script imported
+  shared helpers from other experiment scripts, which are not an importable
+  package, so both failed at import time. The two-dimensional design, the
+  study area loader and the summary reader now live in the nmi package.
+- The wolf scripts raised an unclear key error when they were given a
+  configuration without a wolf block. They now report the mismatch and stop.

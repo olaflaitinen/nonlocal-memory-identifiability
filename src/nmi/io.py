@@ -10,7 +10,7 @@
 # Inputs: arrays, tables and configurations. Outputs: HDF5 archives and comma
 # separated value files under results/.
 
-import csv  # Writer of the comma separated summary files.
+import csv  # Reader and writer of the comma separated summary files.
 import datetime  # Coordinated universal time stamps of the runs.
 import importlib.metadata  # Versions of the installed scientific libraries.
 import subprocess  # Reading of the git commit of the working tree.
@@ -202,3 +202,26 @@ def write_latex(path, rows, columns, headers, caption, label):
     lines.append("\\end{table}")  # End of the table environment.
     location.write_text("\n".join(lines) + "\n", encoding="utf-8")  # Write the LaTeX source.
     return location  # Return the written file for convenience.
+
+
+# Read a tracked summary table into a list of dictionaries.
+# Arguments:
+#   path (str or pathlib.Path): the comma separated file to read.
+# Returns:
+#   list: one dictionary per row, or an empty list when the file is absent.
+def read_summary(path):
+    location = Path(path)  # Normalise the argument into a path object.
+    if not location.is_file():  # The summary has not been produced yet.
+        return []  # Report the absence as an empty table.
+    with location.open(encoding="utf-8", newline="") as handle:  # Open the summary for reading.
+        return list(csv.DictReader(handle))  # One dictionary per row of the table.
+
+
+# Read the summary table of the wolf preprocessing of Experiment 4.1.
+# Arguments:
+#   experiment (str): the experiment identifier used in the file name.
+#   folder (str or pathlib.Path): the directory that holds the summaries.
+# Returns:
+#   list: one dictionary per individual, or an empty list when it is absent.
+def read_wolf_summary(experiment, folder="results/summary"):
+    return read_summary(Path(folder) / f"{experiment}_wolf_data.csv")  # Summary of Experiment 4.1.

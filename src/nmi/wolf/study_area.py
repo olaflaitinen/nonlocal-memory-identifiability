@@ -10,6 +10,8 @@
 # Inputs: projected fixes in metres and a buffer width. Outputs: the mask, the
 # grid coordinates and the area of the study region.
 
+from pathlib import Path  # Portable filesystem paths.
+
 import numpy as np  # Numerical arrays and elementary functions.
 from shapely import contains_xy  # Vectorised point in polygon test of Shapely.
 from shapely.geometry import MultiPoint  # Convex hull of the projected fixes.
@@ -78,3 +80,22 @@ def cell_indices(x_values, y_values, area):
     columns = np.clip(columns, 0, x_centres.size - 1)  # Keep the indices inside the grid.
     rows = np.clip(rows, 0, y_centres.size - 1)  # Keep the indices inside the grid.
     return rows, columns  # Row and column indices of the cells that contain the points.
+
+
+# Load the study area of one individual from the archive written by Experiment 4.1.
+# Arguments:
+#   identifier (str): the animal identifier of the individual.
+#   directory (str or pathlib.Path): the directory that holds the archives.
+# Returns:
+#   dict: the mask, the cell centres and the cell width, or None when absent.
+def load_study_area(identifier, directory):
+    path = Path(directory) / f"study_area_{identifier}.npz"  # Archive of this individual.
+    if not path.is_file():  # The study area of this individual has not been built.
+        return None  # Report the absence to the caller.
+    with np.load(path) as archive:  # Open the archive of the study area.
+        return {  # Study area mapping in the layout used by the solvers.
+            "mask": np.asarray(archive["mask"], dtype=bool),  # Boolean mask of the study area.
+            "x_centres": np.asarray(archive["x_centres"], dtype=float),  # Centres, first axis.
+            "y_centres": np.asarray(archive["y_centres"], dtype=float),  # Centres, second axis.
+            "cell": float(np.asarray(archive["cell"], dtype=float)[0]),  # Cell width in metres.
+        }

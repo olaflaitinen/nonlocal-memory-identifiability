@@ -16,10 +16,10 @@ from pathlib import Path  # Portable filesystem paths.
 import numpy as np  # Numerical arrays and random number generation.
 
 from nmi.config import load_experiment_config  # Configuration loader with base inheritance.
-from nmi.design import table3_values  # Parameter values of Table 3.
+from nmi.design import conditions_2d, initial_density_2d  # Two-dimensional design helpers.
 from nmi.io import ensure_dir, run_metadata, write_csv, write_hdf5  # Output writers.
 from nmi.observation import add_gaussian_noise  # Observation model of equation (9).
-from nmi.random_state import generator_from_sequence, spawn_seed_sequences  # Deterministic seeds.
+from nmi.random_state import generator_from_sequence  # Deterministic per-condition generators.
 from nmi.spectral_2d import simulate_2d  # Two-dimensional pseudo-spectral solver.
 
 # Number of densely recorded times used to locate the largest density.
@@ -37,59 +37,6 @@ def parse_arguments(argv):
     parser.add_argument("--condition-index", type=int, default=None, help="one condition")  # Subset.
     parser.add_argument("--output-dir", default=None, help="raw output directory")  # Destination.
     return parser.parse_args(argv)  # Parsed command line arguments of the script.
-
-
-# Initial density of the two-dimensional experiments.
-# Arguments:
-#   n_points (int): number of grid points in each coordinate direction.
-#   length (float): side length L of the periodic square.
-#   mean_density (float): mean density u_bar of the uniform state.
-#   amplitude (float): amplitude epsilon of the initial perturbation.
-# Returns:
-#   numpy.ndarray: the initial density of shape (n_points, n_points).
-def initial_density_2d(n_points, length, mean_density, amplitude):
-    from nmi.grids import periodic_grid_2d  # Equispaced grid of the periodic square.
-
-    grid_x, grid_y = periodic_grid_2d(int(n_points), float(length))  # Coordinates of the cells.
-    wave = 2.0 * np.pi / float(length)  # Wavenumber of the first mode of the square.
-    # Fixed combination of the lowest modes of the square, used in every run.
-    shape = np.cos(wave * grid_x) + np.cos(wave * grid_y) + 0.5 * np.cos(wave * (grid_x + grid_y))
-    shape = shape / float(np.max(np.abs(shape)))  # Scale to unit maximum absolute value.
-    return float(mean_density) * (1.0 + float(amplitude) * shape)  # Perturbed uniform state.
-
-
-# Build the list of two-dimensional conditions selected for Section 5.4.
-# Arguments:
-#   config (dict): the configuration mapping of the run.
-# Returns:
-#   list: the selected conditions, with a stable index and identifier.
-def conditions_2d(config):
-    settings = config["pilot_2d"]  # Settings of the two-dimensional experiments.
-    design = config["design"]  # Block that describes the synthetic design.
-    kernels = sorted(design["kernels"])  # Kernel families, in alphabetical order.
-    radii = sorted(float(value) for value in settings["radii"])  # Perceptual ranges, ascending.
-    noises = sorted(float(value) for value in settings["noise_levels"])  # Noise levels, ascending.
-    combinations = []  # Accumulator for the factor combinations in lexicographic order.
-    for kernel in kernels:  # Outermost factor of the lexicographic ordering.
-        for radius in radii:  # Second factor of the lexicographic ordering.
-            for noise in noises:  # Innermost factor of the lexicographic ordering.
-                combinations.append((kernel, radius, noise))  # Record the factor combination.
-    sequences = spawn_seed_sequences(int(design["seed"]) + 1, len(combinations))  # Per-condition seeds.
-    selected = []  # Accumulator for the selected two-dimensional conditions.
-    for index, (kernel, radius, noise) in enumerate(combinations):  # Build each condition.
-        values = table3_values(kernel, radius, design)  # Parameter values of Table 3.
-        record = dict(values)  # Copy so that the Table 3 values are not modified in place.
-        record["index"] = index  # Stable integer index of the two-dimensional condition.
-        record["identifier"] = f"k-{kernel}_R-{radius:.3f}_eta-{noise:.2f}_2d"  # Stable label.
-        record["noise_level"] = float(noise)  # Relative noise level eta of the condition.
-        record["diffusion"] = float(design["diffusion"])  # True diffusion rate d.
-        record["memory_decay"] = float(design["memory_decay"])  # True memory decay rate mu.
-        record["beta"] = float(design["beta"])  # True memory uptake rate beta.
-        record["n_space"] = int(settings["n_space"])  # Spatial sample points along each axis.
-        record["n_time"] = int(settings["n_time"])  # Number of observation times.
-        record["seed"] = int(sequences[index].generate_state(1, dtype=np.uint64)[0])  # Seed.
-        selected.append(record)  # Store the completed two-dimensional condition.
-    return selected  # The two-dimensional conditions of Section 5.4.
 
 
 # Entry point of the two-dimensional pilot.

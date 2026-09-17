@@ -22,10 +22,11 @@ import pandas  # Tabular handling of the cleaned table of location fixes.
 
 from nmi.config import load_experiment_config  # Configuration loader with base inheritance.
 from nmi.diagnostics import convergence_statistics, has_converged, posterior_summary  # Diagnostics.
-from nmi.io import ensure_dir, write_csv  # Output writers of the experiment.
+from nmi.io import ensure_dir, read_wolf_summary, write_csv  # Output helpers of the experiment.
 from nmi.mcmc_ensemble import initial_positions, run_ensemble  # Ensemble sampler wrapper.
 from nmi.priors import LogUniformPrior  # Log-uniform prior on the fitted parameters.
 from nmi.wolf.masked_solver import masked_steady_state  # Stationary density on the masked grid.
+from nmi.wolf.study_area import load_study_area  # Loader of the study area of one individual.
 from nmi.wolf.model_comparison import (  # Model comparison of Section 4.5.
     block_indices,  # Contiguous blocks of fixes used by the robustness check.
     compare_models,  # Leave one out comparison of the candidate models.
@@ -37,8 +38,6 @@ from nmi.wolf.point_likelihood import (  # Weighted point likelihood of equation
     uniform_loglik,  # Weighted log-likelihood of the model without nonlocal advection.
     weighted_pointwise,  # Weighted contribution of every fix.
 )
-
-from experiments.exp_4_2_wolf_pilot import load_study_area, read_wolf_summary  # Shared helpers.
 
 # Names of the sampled parameters of the wolf fits, in sampler order.
 PARAMETER_NAMES = ("aggregation_ratio", "radius")  # Parameters identified by Proposition 4.
@@ -149,6 +148,10 @@ def draw_contributions(draws, individual, n_draws):
 def main(argv):
     arguments = parse_arguments(argv)  # Parsed command line arguments of the script.
     config = load_experiment_config(arguments.config)  # Merged and validated configuration.
+    if "wolf" not in config:  # The configuration does not describe the wolf application.
+        # Report the mismatch rather than failing with an unclear key error.
+        print("this configuration has no wolf block, use configs/exp_4_wolf.yaml")
+        return 0  # Signal success, since an unsuitable configuration is not an error here.
     settings = config["wolf"]  # Settings of the application to the wolf data.
     source = Path("results/raw/exp_4_1")  # Directory that holds the output of Experiment 4.1.
     # Directory that receives the sampler backends of the wolf fits.
