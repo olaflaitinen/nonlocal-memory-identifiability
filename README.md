@@ -24,18 +24,22 @@ inference on synthetic data across noise levels, sampling designs, perceptual
 ranges and kernel shapes, and an application to publicly archived wolf Global
 Positioning System location data.
 
-**Status:** under development. The numerical results in this repository are not
-final until the manuscript is submitted.
+**Status:** under development. No experiment of the manuscript has been run yet.
+The repository is verified by its test suite, by the pre-experiment checks of
+`precheck/` and by the demonstration configuration of `make smoke`, whose
+outputs are not manuscript results.
 
 ## System requirements
 
-- Operating systems tested: Linux (Ubuntu 24.04) and the Red Hat based
-  environment of the CSC Roihu supercomputer.
-- Python 3.12, with the exact package versions pinned in `environment.yml`.
-- R 4.4 with the package `ctmm`, required only by Experiment 4.1.
+- Operating system on which the test suite has been run: Linux (Ubuntu 24.04).
+  The repository has not yet been run on any other operating system.
+- Python 3.12, with the package versions recorded in `environment.yml`.
+- R 4.4 with the package `ctmm`, required only by Experiment 4.1. That step has
+  not yet been run.
 - Hardware: a workstation with at least 8 GB of memory runs the demonstration
-  and the one-dimensional experiments; the full sampling experiments of
-  Sections 5.3, 5.4 and 6 were run on a cluster allocation.
+  and the one-dimensional experiments. The sampling experiments of Sections 5.3,
+  5.4 and 6 are planned for a cluster allocation and have not yet been run. The
+  CSC Roihu environment described in `docs/roihu.md` is to be tested.
 
 ## Installation
 
@@ -113,24 +117,28 @@ be regenerated with the code in this repository.
 
 The code is available at
 https://github.com/olaflaitinen/nonlocal-memory-identifiability under the
-Mozilla Public License 2.0. The version used for the article is archived at
-Zenodo, which mints two persistent identifiers:
+Mozilla Public License 2.0. Two development snapshots are archived at Zenodo,
+both taken before any experiment of the manuscript was run:
 
 | Identifier | Resolves to |
 |---|---|
-| https://doi.org/10.5281/zenodo.22804930 | version 0.1.0, the code that produced the reported results |
 | https://doi.org/10.5281/zenodo.22804041 | the software as a whole, always the most recent archived version |
+| https://doi.org/10.5281/zenodo.22804930 | version 0.1.0, a development snapshot |
+| https://doi.org/10.5281/zenodo.22804042 | version 0.0.1, an earlier development snapshot |
 
-Both are recorded in `CITATION.cff` and the concept identifier is recorded in
-`.zenodo.json`. `docs/reproducibility.md` describes how a later version is
-tagged, released and archived.
+Neither snapshot produced the numerical results of the manuscript. The version
+used for those results will be released as 1.0.0 once the experiments have been
+run, and its identifier will be added here, to `CITATION.cff` and to the
+manuscript. The identifiers are recorded in `CITATION.cff`, and the concept
+identifier is recorded in `.zenodo.json`. `docs/reproducibility.md` describes
+how a later version is tagged, released and archived.
 
 ## Citation
 
-Please cite the article and the archived software version. Cite the version
-identifier 10.5281/zenodo.22804930 rather than the concept identifier, so that
-the citation names the exact code that produced the reported results. Citation
-metadata are provided in `CITATION.cff`.
+Please cite the article and the archived software. Until version 1.0.0 is
+released, cite the concept identifier 10.5281/zenodo.22804041, which resolves to
+the most recent archived version. Citation metadata are provided in
+`CITATION.cff`.
 
 ## Licence
 
