@@ -15,14 +15,16 @@ message: "If you use this software, please cite it using the metadata below."
 title: "nonlocal-memory-identifiability: code for identifiability of perception and memory in nonlocal advection-diffusion models of animal movement"
 # The cited work is software rather than an article.
 type: software
-# Version of the code archived alongside the manuscript.
+# Most recent archived version, a development snapshot rather than the version
+# that produces the numerical results of the manuscript. That version will be
+# released as 1.0.0 once the experiments have been run.
 version: 0.1.0
 # Licence of the source code, expressed as an SPDX identifier.
 license: MPL-2.0
 # Location of the source code repository.
 repository-code: "https://github.com/olaflaitinen/nonlocal-memory-identifiability"
-# Persistent identifier of the archived version, which resolves to this release.
-doi: "10.5281/zenodo.22804930"
+# Concept identifier of the software, cited until version 1.0.0 is released.
+doi: "10.5281/zenodo.22804041"
 # Persistent identifiers minted by the archive for this software.
 identifiers:
   # Identifier that always resolves to the most recent archived version.
@@ -31,12 +33,18 @@ identifiers:
     value: "10.5281/zenodo.22804041"
     # Description shown by citation tools beside the identifier.
     description: "Concept identifier of all archived versions"
-  # Identifier of the exact version that produced the reported results.
+  # Identifier of a snapshot taken before any experiment of the manuscript was run.
   - type: doi
-    # Version identifier of the release archived at submission.
+    # Version identifier of the development snapshot 0.1.0.
     value: "10.5281/zenodo.22804930"
     # Description shown by citation tools beside the identifier.
-    description: "Identifier of version 0.1.0"
+    description: "Development snapshot 0.1.0, archived before any experiment was run"
+  # Identifier of the earlier snapshot, also taken before any experiment was run.
+  - type: doi
+    # Version identifier of the development snapshot 0.0.1.
+    value: "10.5281/zenodo.22804042"
+    # Description shown by citation tools beside the identifier.
+    description: "Development snapshot 0.0.1, archived before any experiment was run"
 # Authors of the software.
 authors:
   # Sole author of the software and of the accompanying manuscript.
