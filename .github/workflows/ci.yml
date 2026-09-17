@@ -33,7 +33,7 @@ jobs:
       - name: Check out the repository
         # Official action that clones the repository into the workspace.
         uses: actions/checkout@v4
-      # Install the interpreter version used for the reported results.
+      # Install the interpreter version required by the packaging metadata.
       - name: Set up Python 3.12
         # Official action that provisions a CPython interpreter.
         uses: actions/setup-python@v5
