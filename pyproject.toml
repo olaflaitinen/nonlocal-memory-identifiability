@@ -1,0 +1,83 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Packaging metadata, test runner configuration and linter
+# configuration for the nmi package, which implements the forward solvers and
+# the inference code of the manuscript.
+# Manuscript: supports Section 4.6 and docs/reproducibility.md.
+# Inputs: none. Outputs: an installable distribution of the nmi package.
+
+# The build backend used to produce the distribution.
+[build-system]
+# Setuptools is used because the project is a plain source layout package.
+requires = ["setuptools>=68", "wheel"]
+# The standard setuptools entry point for building the distribution.
+build-backend = "setuptools.build_meta"
+
+# Core metadata of the distribution.
+[project]
+# Import name and distribution name of the package.
+name = "nmi"
+# Version of the code archived alongside the manuscript.
+version = "0.1.0"
+# One line summary shown by packaging tools.
+description = "Structural and practical identifiability of perception and memory in nonlocal advection-diffusion models"
+# Minimum interpreter version, matching the environment used for the experiments.
+requires-python = ">=3.12"
+# Licence of the source code, expressed as an SPDX identifier.
+license = "MPL-2.0"
+# Free text keywords used by package indexes.
+keywords = ["identifiability", "nonlocal advection-diffusion", "animal movement", "spatial memory"]
+# Runtime dependencies pinned to the major versions used for the experiments.
+dependencies = [
+    "numpy>=2.0", # Arrays, fast Fourier transforms and random number generation.
+    "scipy>=1.13", # Optimisation, special functions and sparse linear algebra.
+    "matplotlib>=3.8", # Figure generation in Encapsulated PostScript format.
+    "h5py>=3.10", # Storage of sampler chains and reference solutions.
+    "pandas>=2.2", # Tabular handling of designs, summaries and telemetry data.
+    "pyyaml>=6.0", # Reading of the experiment configuration files.
+    "emcee>=3.1", # Affine invariant ensemble sampler of Goodman and Weare.
+    "arviz>=0.19,<1.0", # Convergence diagnostics and leave one out cross-validation.
+    "shapely>=2.0", # Construction of the buffered study area polygons.
+    "pyproj>=3.6", # Projection of geographic coordinates to metric coordinates.
+    "numba>=0.60", # Optional acceleration of the finite volume update loops.
+]
+
+# Author metadata of the distribution.
+[[project.authors]]
+# Full name of the author as given in the manuscript.
+name = "Olaf Yunus Laitinen Imanov"
+# Electronic mail address of the corresponding author.
+email = "yunus.imanov@helsinki.fi"
+
+# Runtime dependencies required to run the forward solvers and the inference.
+[project.optional-dependencies]
+# Development extras install the test runner and the linter as well.
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+# Location of the package sources under the src layout.
+[tool.setuptools.packages.find]
+# The package directory that setuptools scans for importable packages.
+where = ["src"]
+
+# Configuration of the pytest test runner.
+[tool.pytest.ini_options]
+# Directory that contains the test modules.
+testpaths = ["tests"]
+# Custom markers declared to avoid warnings about unknown markers.
+markers = ["slow: tests that run a full forward solve or a sampler and take minutes"]
+# Command line options applied to every test session.
+addopts = "-q"
+
+# Configuration of the ruff linter.
+[tool.ruff]
+# Maximum line length used throughout the repository.
+line-length = 120
+# Interpreter version whose syntax rules the linter assumes.
+target-version = "py312"
+
+# Selection of the lint rules that are enforced.
+[tool.ruff.lint]
+# Pycodestyle errors, pyflakes checks and pycodestyle warnings are enforced.
+select = ["E", "F", "W"]
