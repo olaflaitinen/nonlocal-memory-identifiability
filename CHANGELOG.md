@@ -5,6 +5,9 @@ follows Keep a Changelog, and the project adheres to semantic versioning.
 
 ## [0.1.0] - 2026-09-17
 
+Archived at Zenodo under the version identifier 10.5281/zenodo.22804930. The
+concept identifier 10.5281/zenodo.22804041 resolves to the most recent version.
+
 ### Added
 
 - Forward solvers for model (1): a Fourier pseudo-spectral scheme in one and

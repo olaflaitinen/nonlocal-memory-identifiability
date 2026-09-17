@@ -113,14 +113,24 @@ be regenerated with the code in this repository.
 
 The code is available at
 https://github.com/olaflaitinen/nonlocal-memory-identifiability under the
-Mozilla Public License 2.0. The version used for the article will be archived
-at Zenodo; the digital object identifier is added to `CITATION.cff` and
-`.zenodo.json` when the release is made.
+Mozilla Public License 2.0. The version used for the article is archived at
+Zenodo, which mints two persistent identifiers:
+
+| Identifier | Resolves to |
+|---|---|
+| https://doi.org/10.5281/zenodo.22804930 | version 0.1.0, the code that produced the reported results |
+| https://doi.org/10.5281/zenodo.22804041 | the software as a whole, always the most recent archived version |
+
+Both are recorded in `CITATION.cff` and the concept identifier is recorded in
+`.zenodo.json`. `docs/reproducibility.md` describes how a later version is
+tagged, released and archived.
 
 ## Citation
 
-Please cite the article and the archived software version. Citation metadata
-are provided in `CITATION.cff`.
+Please cite the article and the archived software version. Cite the version
+identifier 10.5281/zenodo.22804930 rather than the concept identifier, so that
+the citation names the exact code that produced the reported results. Citation
+metadata are provided in `CITATION.cff`.
 
 ## Licence
 

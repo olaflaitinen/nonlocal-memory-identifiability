@@ -21,6 +21,22 @@ version: 0.1.0
 license: MPL-2.0
 # Location of the source code repository.
 repository-code: "https://github.com/olaflaitinen/nonlocal-memory-identifiability"
+# Persistent identifier of the archived version, which resolves to this release.
+doi: "10.5281/zenodo.22804930"
+# Persistent identifiers minted by the archive for this software.
+identifiers:
+  # Identifier that always resolves to the most recent archived version.
+  - type: doi
+    # Concept identifier of the software, covering every archived version.
+    value: "10.5281/zenodo.22804041"
+    # Description shown by citation tools beside the identifier.
+    description: "Concept identifier of all archived versions"
+  # Identifier of the exact version that produced the reported results.
+  - type: doi
+    # Version identifier of the release archived at submission.
+    value: "10.5281/zenodo.22804930"
+    # Description shown by citation tools beside the identifier.
+    description: "Identifier of version 0.1.0"
 # Authors of the software.
 authors:
   # Sole author of the software and of the accompanying manuscript.

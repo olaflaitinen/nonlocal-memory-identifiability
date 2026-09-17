@@ -31,6 +31,11 @@
       "identifier": "10.5441/001/1.7vr1k987",
       "relation": "references",
       "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.22804041",
+      "relation": "isVersionOf",
+      "scheme": "doi"
     }
   ]
 }
