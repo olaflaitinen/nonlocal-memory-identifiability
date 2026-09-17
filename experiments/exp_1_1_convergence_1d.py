@@ -18,7 +18,6 @@ import numpy as np  # Numerical arrays and elementary functions.
 
 from nmi.config import load_experiment_config  # Configuration loader with base inheritance.
 from nmi.design import initial_density, table3_values  # Initial data and Table 3 parameters.
-from nmi.grids import periodic_grid_1d  # Equispaced grid of the periodic domain.
 from nmi.io import write_csv  # Writer of the tracked summary table.
 from nmi.spectral_1d import simulate_1d  # Pseudo-spectral forward solver.
 
@@ -110,15 +109,15 @@ def main(argv):
         reference_state = reference["density"][0]  # Reference state at the evaluation time.
         previous_error = None  # Error of the previous grid, used for the observed order.
         for n_points in settings["grids"]:  # Refine the grid at the fixed reference time step.
+            step = float(settings["reference_time_step"])  # Reference time step of this study.
             # Forward solve on the current grid at the reference time step.
-            result = run_solve(params, kernel, config, int(n_points), float(settings["reference_time_step"]), evaluation_time)
+            result = run_solve(params, kernel, config, int(n_points), step, evaluation_time)
             restricted = restrict_to_grid(reference_state, int(n_points))  # Reference on the grid.
             # Relative error of this run against the restricted reference solution.
             error = float(np.linalg.norm(result["density"][0] - restricted) / np.linalg.norm(restricted))
             order = None  # Observed order of convergence between two successive grids.
             if previous_error is not None and error > 0.0:  # An order can only be formed from two errors.
                 order = float(np.log2(previous_error / error))  # Order implied by a halved cell width.
-            step = float(settings["reference_time_step"])  # Time step of the grid refinement study.
             records.append(_record(kernel, "grid", int(n_points), step, error, order, result))  # One row.
             previous_error = error  # Remember the error for the next refinement level.
         previous_error = None  # Reset the error before the time step refinement study.

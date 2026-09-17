@@ -13,8 +13,6 @@ import argparse  # Command line interface of the experiment script.
 import sys  # Process exit status of the experiment script.
 from pathlib import Path  # Portable filesystem paths.
 
-import numpy as np  # Numerical arrays and random number generation.
-
 from nmi.config import load_experiment_config  # Configuration loader with base inheritance.
 from nmi.design import design_1d  # Construction of the factorial design.
 from nmi.io import ensure_dir, run_metadata, write_csv, write_hdf5  # Output writers.
