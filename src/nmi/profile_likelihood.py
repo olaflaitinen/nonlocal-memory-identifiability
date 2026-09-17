@@ -27,7 +27,7 @@ PROFILE_THRESHOLD = 1.9207296556006175  # One half of the chi squared quantile w
 #   initial (numpy.ndarray): starting point of the first nuisance optimisation.
 #   max_iterations (int): cap on the iterations of one local optimisation, or
 #   None for the default of the algorithm. The cap keeps the demonstration
-#   configuration inexpensive and is not used for the reported results.
+#   configuration inexpensive and is not set in the experiment configurations.
 # Returns:
 #   dict: the grid of the profiled parameter, the profile values and the
 #   optimal nuisance parameters at every grid value.
