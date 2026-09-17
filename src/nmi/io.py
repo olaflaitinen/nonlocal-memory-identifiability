@@ -171,3 +171,34 @@ def read_condition_data(experiment, index, directory=None):
         "u_max": float(metadata["u_max"]),  # Largest density of the reference simulation.
         "seed": int(metadata["seed"]),  # Deterministic seed of the condition.
     }
+
+
+# Write a table as a LaTeX tabular environment in the booktabs style.
+# The output is compatible with the Springer Nature LaTeX template.
+# Arguments:
+#   path (str or pathlib.Path): the file to write.
+#   rows (sequence): dictionaries with identical keys.
+#   columns (sequence): the column names, in the order of the output.
+#   headers (sequence): the column headers shown in the typeset table.
+#   caption (str): the caption of the table.
+#   label (str): the LaTeX label of the table.
+# Returns:
+#   pathlib.Path: the file that was written.
+def write_latex(path, rows, columns, headers, caption, label):
+    location = Path(path)  # Normalise the argument into a path object.
+    ensure_dir(location.parent)  # Create the containing directory when it is absent.
+    lines = ["\\begin{table}[t]", "\\centering"]  # Opening of the table environment.
+    lines.append(f"\\caption{{{caption}}}")  # Caption of the typeset table.
+    lines.append(f"\\label{{{label}}}")  # Label used for cross references.
+    lines.append("\\begin{tabular}{" + "l" * len(columns) + "}")  # Column specification.
+    lines.append("\\toprule")  # Upper rule of the booktabs style.
+    lines.append(" & ".join(str(item) for item in headers) + " \\\\")  # Header row.
+    lines.append("\\midrule")  # Middle rule of the booktabs style.
+    for row in rows:  # Write one line per record of the table.
+        cells = [str(row.get(name, "")) for name in columns]  # Cells of the current row.
+        lines.append(" & ".join(cells) + " \\\\")  # Body row of the typeset table.
+    lines.append("\\bottomrule")  # Lower rule of the booktabs style.
+    lines.append("\\end{tabular}")  # End of the tabular environment.
+    lines.append("\\end{table}")  # End of the table environment.
+    location.write_text("\n".join(lines) + "\n", encoding="utf-8")  # Write the LaTeX source.
+    return location  # Return the written file for convenience.
