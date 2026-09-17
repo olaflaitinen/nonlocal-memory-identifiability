@@ -140,7 +140,14 @@ def check_python(path, text):
 def check_python_structure(path, tokens, lines, comment_only):
     problems = []  # Accumulator for the structural violations of this file.
     expect_docstring = False  # True while the next statement could be a docstring.
+    depth = 0  # Running bracket nesting depth, used to ignore dictionary keys.
     for index, token in enumerate(tokens):  # Walk the token stream with its position.
+        if token.type == tokenize.OP and token.string in "([{":  # An opening bracket.
+            depth = depth + 1  # Record the deeper nesting level.
+        elif token.type == tokenize.OP and token.string in ")]}":  # A closing bracket.
+            depth = max(0, depth - 1)  # Never allow a negative nesting depth.
+        if depth > 0:  # Strings inside brackets are data rather than docstrings.
+            continue  # Skip the structural checks while inside a bracketed expression.
         if token.type == tokenize.NAME and token.string in ("def", "class"):  # A definition.
             row = token.start[0]  # Line number of the definition keyword.
             if row > 1 and lines[row - 2].strip().startswith("@"):  # A decorator precedes it.
