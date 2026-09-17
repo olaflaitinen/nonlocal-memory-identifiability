@@ -1,0 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the numerical check of the structural results, including the sensitivity matrices and the log-likelihood surfaces of Fig. 3.
+# Manuscript: Section 5.2, Experiment 2.1; Fig. 3.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_2_1_structural_checks
+# Settings of the structural checks.
+structural:
+  # Index of the factorial condition used for the checks.
+  condition_index: 55
+  # Relative step of the central difference in log space.
+  finite_difference_step: 1.0e-4
+  # Number of grid points along each axis of the log-likelihood surfaces.
+  surface_points: 41
+  # Half width of the log-likelihood surfaces, in natural logarithm units.
+  surface_half_width: 1.5
+  # Relative noise level used for the surfaces of Fig. 3.
+  noise_level: 0.05

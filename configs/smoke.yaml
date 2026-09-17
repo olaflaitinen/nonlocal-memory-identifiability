@@ -1,0 +1,244 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Small configuration that runs every stage of the pipeline end to end
+# in a few minutes, so that the repository can be demonstrated and tested
+# without access to a cluster. The numerical values are deliberately coarse and
+# the outputs are not the results reported in the manuscript.
+# Manuscript: supports the demonstration described in README.md.
+# Inputs: the base design configuration. Outputs: smoke outputs under
+# results/raw/smoke and results/summary.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: smoke
+# Marker that makes every experiment script select its reduced smoke settings.
+smoke: true
+# Reduced synthetic design of the smoke configuration.
+design:
+  # A single perceptual range keeps the number of conditions small.
+  perceptual_ranges: [0.15]
+  # Both kernel families are retained so that every code path is exercised.
+  kernels: [tophat, gaussian]
+  # Two noise levels keep the number of conditions small.
+  noise_levels: [0.05, 0.20]
+  # A single sampling design keeps the number of conditions small.
+  sampling_designs:
+    # Sparse design with sixteen spatial points and six observation times.
+    sparse:
+      # Number of equally spaced spatial points on the torus.
+      n_space: 16
+      # Number of equally spaced observation times, including the initial time.
+      n_time: 6
+  # Perceptual range of the profile likelihood conditions of the smoke run.
+  profile_radius: 0.15
+  # Sampling design of the profile likelihood conditions of the smoke run.
+  profile_sampling: sparse
+  # Shorter observation window, which keeps every forward solve inexpensive.
+  observation_time: 20.0
+# Reduced numerical resolutions of the smoke configuration.
+solver:
+  # Resolution used when evaluating the likelihood during the smoke run.
+  inference:
+    # Number of grid points N of the smoke inference resolution.
+    n_points: 64
+    # Time step of the smoke inference resolution.
+    time_step: 0.02
+  # Resolution used when generating the smoke synthetic data.
+  reference:
+    # Number of grid points N of the smoke reference resolution.
+    n_points: 128
+    # Time step of the smoke reference resolution.
+    time_step: 0.005
+  # Grid sizes inspected by the smoke convergence study.
+  convergence_grids: [32, 64]
+  # Time steps inspected by the smoke convergence study.
+  convergence_time_steps: [0.04, 0.02]
+  # Time stepping scheme of the smoke run.
+  scheme: imex_euler
+  # Relative tolerance below which a pseudo-spectral run is rejected.
+  positivity_tolerance: 1.0e-8
+  # The optional Numba acceleration is not used by the smoke run.
+  use_numba: false
+  # Damping weight of the fixed-point steady state solver.
+  fixed_point_damping: 0.5
+  # Convergence tolerance of the fixed-point steady state solver.
+  fixed_point_tolerance: 1.0e-10
+  # Maximum number of iterations of the fixed-point steady state solver.
+  fixed_point_max_iter: 5000
+# Reduced settings of the checkpoint and resume test.
+checkpoint_test:
+  # Number of iterations of the uninterrupted reference chain.
+  n_iterations: 200
+  # Iteration at which the interrupted chain is stopped and resumed.
+  interrupt_at: 80
+  # Number of iterations between two checkpoints.
+  checkpoint_every: 20
+  # Standard deviation of the initial diagonal proposal.
+  initial_scale: 0.2
+  # Iteration at which the covariance adaptation begins.
+  adaptation_start: 50
+  # Seed of the sampler used by the test.
+  seed: 4242
+# Reduced settings of the one-dimensional convergence study.
+convergence:
+  # Grid sizes at which the forward solve is repeated.
+  grids: [32, 64]
+  # Time steps at which the forward solve is repeated.
+  time_steps: [0.04, 0.02]
+  # Grid size of the reference solution against which the errors are measured.
+  reference_grid: 128
+  # Time step of the reference solution against which the errors are measured.
+  reference_time_step: 0.005
+  # Time at which the relative error is evaluated.
+  evaluation_time: 5.0
+  # Perceptual range used by the convergence study.
+  radius: 0.15
+  # Detection kernel families inspected by the convergence study.
+  kernels: [tophat, gaussian]
+# Reduced settings of the steady-state agreement study.
+steady_state:
+  # Grid size of the transient and of the fixed-point solve.
+  n_points: 64
+  # Time step of the transient solve.
+  time_step: 0.02
+  # End of the transient solve of the smoke run.
+  t_final: 60.0
+  # Times at which the transient solution is recorded.
+  record_times: [0.0, 10.0, 20.0, 40.0, 60.0]
+  # Time step of the finite-volume comparison solve.
+  fv_time_step: 0.002
+  # End of the finite-volume comparison solve.
+  fv_t_final: 5.0
+# Reduced settings of the two-dimensional convergence study.
+convergence_2d:
+  # Grid sizes at which the two-dimensional forward solve is repeated.
+  grids: [16, 32]
+  # Grid size of the two-dimensional reference solution.
+  reference_grid: 64
+  # Time step of the two-dimensional forward solves.
+  time_step: 0.02
+  # Time step of the two-dimensional reference solution.
+  reference_time_step: 0.005
+  # Time at which the relative error is evaluated.
+  evaluation_time: 2.0
+  # Perceptual range used by the two-dimensional convergence study.
+  radius: 0.15
+  # Detection kernel families inspected by the study.
+  kernels: [tophat, gaussian]
+  # Amplitude of the two-dimensional initial perturbation.
+  perturbation_amplitude: 0.05
+# Reduced settings of the structural checks.
+structural:
+  # Index of the factorial condition used for the checks.
+  condition_index: 0
+  # Relative step of the central difference in log space.
+  finite_difference_step: 1.0e-4
+  # Number of grid points along each axis of the log-likelihood surfaces.
+  surface_points: 11
+  # Half width of the log-likelihood surfaces, in natural logarithm units.
+  surface_half_width: 1.0
+  # Relative noise level used for the surfaces of the smoke run.
+  noise_level: 0.05
+# Reduced settings of the sampler pilot.
+pilot:
+  # Indices of the factorial conditions used by the pilot.
+  condition_indices: [0]
+  # Number of iterations of each pilot chain.
+  n_iterations: 200
+  # Standard deviations of the initial diagonal proposal that are compared.
+  initial_scales: [0.05, 0.1]
+  # Iteration at which the covariance adaptation begins.
+  adaptation_start: 50
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+# Reduced settings of the profile likelihood study.
+profile:
+  # Number of equally spaced grid values of each profiled parameter.
+  n_grid: 7
+  # Number of starting points of each nuisance optimisation.
+  n_starts: 2
+  # Threshold of the approximate ninety five per cent confidence interval.
+  threshold: 1.920729655600618
+  # Seed of the random starting points of the nuisance optimisation.
+  seed: 913
+  # The smoke run imposes no wall time limit.
+  wall_time_limit: null
+# Reduced settings of the one-dimensional sampler.
+mcmc:
+  # Number of independent chains per condition.
+  n_chains: 2
+  # Number of iterations per chain.
+  n_iterations: 300
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+  # Standard deviation of the initial diagonal proposal.
+  initial_scale: 0.05
+  # Iteration at which the covariance adaptation begins.
+  adaptation_start: 100
+  # Number of iterations between two checkpoints.
+  checkpoint_every: 100
+  # The smoke run imposes no wall time limit.
+  wall_time_limit: null
+# Reduced settings of the kernel discrimination study.
+discrimination:
+  # Perceptual ranges of the generating conditions.
+  radii: [0.15]
+  # Relative noise levels of the generating conditions.
+  noise_levels: [0.05]
+  # Sampling design of the generating conditions.
+  sampling: sparse
+  # Number of posterior draws used for the cross-validation.
+  n_draws: 40
+  # Number of iterations of each fitted chain.
+  n_iterations: 300
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+  # Seed of the kernel discrimination study.
+  seed: 2606
+# Reduced settings of the two-dimensional pilot.
+pilot_2d:
+  # Grid size of the two-dimensional forward solves.
+  n_points: 16
+  # Time step of the two-dimensional forward solves.
+  time_step: 0.02
+  # Grid size of the two-dimensional reference solution.
+  reference_points: 32
+  # Time step of the two-dimensional reference solution.
+  reference_time_step: 0.005
+  # Perceptual ranges of the two-dimensional subset.
+  radii: [0.15]
+  # Relative noise levels of the two-dimensional subset.
+  noise_levels: [0.05]
+  # Number of spatial sample points along each axis.
+  n_space: 8
+  # Number of observation times of the two-dimensional subset.
+  n_time: 3
+  # Number of walkers of the ensemble sampler.
+  n_walkers: 12
+  # Number of ensemble steps of the pilot.
+  n_steps: 40
+# Reduced settings of the two-dimensional ensemble sampler.
+mcmc_2d:
+  # Number of walkers of the ensemble sampler.
+  n_walkers: 12
+  # Number of ensemble steps per condition.
+  n_steps: 60
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+  # Grid size of the two-dimensional forward solves during inference.
+  n_points: 16
+  # Time step of the two-dimensional forward solves during inference.
+  time_step: 0.02
+  # The smoke run imposes no wall time limit.
+  wall_time_limit: null
+# Reduced settings of the benchmark of the forward solve.
+benchmark:
+  # Grid sizes at which the forward solve is timed.
+  grids: [32, 64]
+  # Number of repetitions of each timing.
+  repeats: 2
+  # End of the timed forward solve.
+  t_final: 5.0

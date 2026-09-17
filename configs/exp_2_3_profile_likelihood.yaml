@@ -1,0 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the profile likelihood study of the sixteen conditions of Table 6.
+# Manuscript: Section 5.3, Experiment 2.3; Table 6 and Fig. 4.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_2_3_profile_likelihood
+# Settings of the profile likelihood study.
+profile:
+  # Number of equally spaced grid values of each profiled parameter.
+  n_grid: 41
+  # Number of starting points of each nuisance optimisation.
+  n_starts: 8
+  # Threshold of the approximate ninety five per cent confidence interval.
+  threshold: 1.920729655600618
+  # Seed of the random starting points of the nuisance optimisation.
+  seed: 913
+  # Wall time in seconds after which a profile is checkpointed and stopped.
+  wall_time_limit: 39600

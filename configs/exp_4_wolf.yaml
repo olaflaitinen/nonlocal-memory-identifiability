@@ -1,0 +1,71 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the application to the wolf space-use data of Section 6,
+# including the cleaning rules, the projection, the inclusion rule, the study
+# area construction and the sampler settings.
+# Manuscript: Section 4.5 and Section 6; Tables 7 and 8 and Fig. 7.
+# Inputs: the Movebank data package placed under data/raw. Outputs: the
+# settings of Experiments 4.1 to 4.4.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_4_wolf
+# Settings of the application to the wolf data.
+wolf:
+  # Directory that holds the downloaded data package, which is not tracked.
+  raw_directory: data/raw
+  # Manifest against which the downloaded files are verified.
+  checksum_manifest: data/checksums.sha256
+  # Whether a checksum mismatch stops the preprocessing script.
+  require_checksums: true
+  # Coordinate reference system of the projected fixes, NAD83 UTM zone 12N.
+  target_epsg: 26912
+  # Coordinate reference system of the recorded fixes, World Geodetic System 1984.
+  source_epsg: 4326
+  # Western limit of Universal Transverse Mercator zone 12, in degrees.
+  utm_zone_west: -114.0
+  # Eastern limit of Universal Transverse Mercator zone 12, in degrees.
+  utm_zone_east: -108.0
+  # Smallest monitoring span of an included individual, in days.
+  min_span_days: 90.0
+  # Smallest effective sample size for area of an included individual.
+  min_effective_size: 20.0
+  # Factor c of the buffer width of the primary analysis.
+  buffer_factor: 0.5
+  # Factor c of the buffer width of the sensitivity analysis.
+  buffer_factor_sensitivity: 1.0
+  # Cell width of the masked Cartesian grid, in metres.
+  cell_metres: 1000.0
+  # Number of cells along each axis of the exported utilisation distribution.
+  akde_grid: 200
+  # Whether the autocorrelated kernel density estimation is run through R.
+  run_r: true
+  # Command used to run the R script of the autocorrelated kernel density estimation.
+  rscript_command: Rscript
+  # Path of the R script of the autocorrelated kernel density estimation.
+  rscript_path: R/akde_ctmm.R
+  # Duration of one block of the leave one block out cross-validation, in days.
+  block_days: 30.0
+  # Detection kernel families fitted to the wolf data.
+  kernels: [tophat, gaussian]
+  # Prior bounds of the aggregation ratio fitted to the wolf data.
+  kappa_bounds: [0.01, 100.0]
+  # Prior bounds of the perceptual range fitted to the wolf data, in metres.
+  radius_bounds: [200.0, 20000.0]
+  # Number of walkers of the ensemble sampler used for the wolf data.
+  n_walkers: 64
+  # Number of ensemble steps of the wolf fits.
+  n_steps: 20000
+  # Number of ensemble steps of the wolf pilot.
+  pilot_steps: 500
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+  # Number of posterior draws used for the cross-validation.
+  n_draws: 400
+  # Wall time in seconds after which a run is checkpointed and stopped.
+  wall_time_limit: 39600
+  # Seed of the samplers of the wolf application.
+  seed: 60606

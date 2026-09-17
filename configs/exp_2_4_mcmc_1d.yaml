@@ -1,0 +1,28 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the one-dimensional Markov chain Monte Carlo study of the seventy two conditions of the factorial design.
+# Manuscript: Section 5.3, Experiment 2.4; Fig. 5 and Online Resource 1.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_2_4_mcmc_1d
+# Settings of the one-dimensional sampler.
+mcmc:
+  # Number of independent chains per condition.
+  n_chains: 4
+  # Number of iterations per chain.
+  n_iterations: 100000
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+  # Standard deviation of the initial diagonal proposal.
+  initial_scale: 0.05
+  # Iteration at which the covariance adaptation begins.
+  adaptation_start: 1000
+  # Number of iterations between two checkpoints.
+  checkpoint_every: 2000
+  # Wall time in seconds after which a chain is checkpointed and stopped.
+  wall_time_limit: 39600

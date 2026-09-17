@@ -1,0 +1,28 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the one-dimensional convergence study of the pseudo-spectral solver, which fixes the inference and reference resolutions.
+# Manuscript: Section 5.1, Experiment 1.1; Table 5 and Fig. 2a,b.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_1_1_convergence_1d
+# Settings of the one-dimensional convergence study.
+convergence:
+  # Grid sizes at which the forward solve is repeated.
+  grids: [64, 128, 256, 512]
+  # Time steps at which the forward solve is repeated.
+  time_steps: [0.02, 0.01, 0.005, 0.0025]
+  # Grid size of the reference solution against which the errors are measured.
+  reference_grid: 1024
+  # Time step of the reference solution against which the errors are measured.
+  reference_time_step: 0.0005
+  # Time at which the relative error is evaluated.
+  evaluation_time: 20.0
+  # Perceptual range used by the convergence study.
+  radius: 0.15
+  # Detection kernel families inspected by the convergence study.
+  kernels: [tophat, gaussian]

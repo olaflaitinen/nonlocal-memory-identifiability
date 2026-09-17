@@ -1,0 +1,26 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the steady-state agreement study, which compares the long time transient solution, the fixed-point solver and the finite-volume scheme.
+# Manuscript: Section 5.1, Experiment 1.2; Fig. 2c.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_1_2_steady_state
+# Settings of the steady-state agreement study.
+steady_state:
+  # Grid size of the transient and of the fixed-point solve.
+  n_points: 256
+  # Time step of the transient solve.
+  time_step: 0.005
+  # End of the transient solve, chosen well beyond the observation window.
+  t_final: 400.0
+  # Times at which the transient solution is recorded for Fig. 2c.
+  record_times: [0.0, 20.0, 40.0, 60.0, 80.0, 100.0, 200.0, 400.0]
+  # Time step of the finite-volume comparison solve.
+  fv_time_step: 0.0002
+  # End of the finite-volume comparison solve.
+  fv_t_final: 40.0

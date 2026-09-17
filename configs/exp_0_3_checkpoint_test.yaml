@@ -1,0 +1,26 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the checkpoint and resume test, which verifies that an interrupted sampler continues the same chain.
+# Manuscript: Section 4.6, computational resources; Experiment 0.3.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_0_3_checkpoint_test
+# Settings of the checkpoint and resume test.
+checkpoint_test:
+  # Number of iterations of the uninterrupted reference chain.
+  n_iterations: 400
+  # Iteration at which the interrupted chain is stopped and resumed.
+  interrupt_at: 150
+  # Number of iterations between two checkpoints.
+  checkpoint_every: 50
+  # Standard deviation of the initial diagonal proposal.
+  initial_scale: 0.2
+  # Iteration at which the covariance adaptation begins.
+  adaptation_start: 100
+  # Seed of the sampler used by the test.
+  seed: 4242

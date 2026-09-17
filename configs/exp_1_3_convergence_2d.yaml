@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the two-dimensional convergence study and of the measurement of the cost of one forward solve.
+# Manuscript: Section 5.1, Experiment 1.3.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_1_3_convergence_2d
+# Settings of the two-dimensional convergence study.
+convergence_2d:
+  # Grid sizes at which the two-dimensional forward solve is repeated.
+  grids: [32, 64, 128]
+  # Grid size of the two-dimensional reference solution.
+  reference_grid: 256
+  # Time step of the two-dimensional forward solves.
+  time_step: 0.005
+  # Time step of the two-dimensional reference solution.
+  reference_time_step: 0.001
+  # Time at which the relative error is evaluated.
+  evaluation_time: 10.0
+  # Perceptual range used by the two-dimensional convergence study.
+  radius: 0.15
+  # Detection kernel families inspected by the study.
+  kernels: [tophat, gaussian]
+  # Amplitude of the two-dimensional initial perturbation.
+  perturbation_amplitude: 0.05

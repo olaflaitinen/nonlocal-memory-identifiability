@@ -1,0 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the sampler pilot that fixes the proposal scale, the adaptation start and the burn-in of the one-dimensional chains.
+# Manuscript: Section 5.3, Experiment 2.2.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_2_2_mcmc_pilot
+# Settings of the sampler pilot.
+pilot:
+  # Indices of the factorial conditions used by the pilot.
+  condition_indices: [4, 40, 55]
+  # Number of iterations of each pilot chain.
+  n_iterations: 4000
+  # Standard deviations of the initial diagonal proposal that are compared.
+  initial_scales: [0.02, 0.05, 0.1]
+  # Iteration at which the covariance adaptation begins.
+  adaptation_start: 500
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5

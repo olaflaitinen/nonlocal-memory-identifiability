@@ -1,0 +1,26 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Settings of the two-dimensional Markov chain Monte Carlo study of the twelve selected conditions.
+# Manuscript: Section 5.4, Experiment 3.2; Fig. 6.
+# Inputs: the base design configuration. Outputs: the settings of this experiment.
+
+# The base configuration whose entries this file overrides.
+base: design_1d.yaml
+# Identifier of this experiment, recorded in the output metadata.
+experiment: exp_3_2_mcmc_2d
+# Settings of the two-dimensional ensemble sampler.
+mcmc_2d:
+  # Number of walkers of the ensemble sampler.
+  n_walkers: 32
+  # Number of ensemble steps per condition.
+  n_steps: 20000
+  # Fraction of each chain that is discarded as burn-in.
+  burn_in_fraction: 0.5
+  # Grid size of the two-dimensional forward solves during inference.
+  n_points: 64
+  # Time step of the two-dimensional forward solves during inference.
+  time_step: 0.005
+  # Wall time in seconds after which a run is checkpointed and stopped.
+  wall_time_limit: 39600
