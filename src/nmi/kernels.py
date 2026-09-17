@@ -94,3 +94,21 @@ def kernel_on_grid_1d(x, radius, kernel, domain_length, images=8):
         displaced = points + shift * domain_length  # Displacement of the current image.
         total = total + kernel_values_1d(displaced, radius, kernel)  # Add the image contribution.
     return total  # Periodised kernel that represents G_R on the torus.
+
+
+# Values of the scaled two-dimensional kernel G_R on the plane.
+# Arguments:
+#   distance (numpy.ndarray): Euclidean distance from the origin.
+#   radius (float): perceptual range R, strictly positive.
+#   kernel (str): "tophat" or "gaussian".
+# Returns:
+#   numpy.ndarray: values of G_R(y) = R^(-2) G(y / R) from Remark 2.
+def kernel_values_2d(distance, radius, kernel):
+    separation = np.asarray(distance, dtype=float)  # Accept scalars and arrays with a common type.
+    if kernel == "tophat":  # Normalised indicator of the disc of radius R.
+        inside = separation <= radius  # Indicator of the perceptual disc.
+        return np.where(inside, 1.0 / (np.pi * radius**2), 0.0)  # Constant density on the disc.
+    if kernel == "gaussian":  # Isotropic Gaussian kernel with standard deviation R.
+        factor = 1.0 / (2.0 * np.pi * radius**2)  # Normalising constant of the density.
+        return factor * np.exp(-0.5 * (separation / radius) ** 2)  # Isotropic Gaussian density.
+    _reject_kernel(kernel)  # Reject unsupported kernel names explicitly.
