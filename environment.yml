@@ -1,0 +1,53 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Pinned software environment for the forward solvers, the inference
+# code, the figures and the tables of the manuscript. The versions recorded
+# below are the versions with which the tests and the smoke configuration of
+# this repository were executed.
+# Manuscript: Section 4.6, computational resources.
+# Inputs: none. Outputs: a conda environment named nmi.
+
+# Name of the conda environment created from this file.
+name: nmi
+# Package channels, restricted to conda-forge for reproducibility.
+channels:
+  # The single channel from which all packages are resolved.
+  - conda-forge
+# Packages installed into the environment, with exact version pins.
+dependencies:
+  # Interpreter version used for every reported result.
+  - python=3.12.3
+  # Arrays, fast Fourier transforms and random number generation.
+  - numpy=2.5.3
+  # Optimisation, special functions and sparse linear algebra.
+  - scipy=1.18.1
+  # Figure generation in Encapsulated PostScript format.
+  - matplotlib-base=3.11.2
+  # Storage of sampler chains and reference solutions.
+  - h5py=3.16.0
+  # Tabular handling of designs, summaries and telemetry data.
+  - pandas=3.0.5
+  # Reading of the experiment configuration files.
+  - pyyaml=6.0.3
+  # Affine invariant ensemble sampler of Goodman and Weare.
+  - emcee=3.1.6
+  # Convergence diagnostics and leave one out cross-validation.
+  - arviz=0.23.4
+  # Construction of the buffered study area polygons.
+  - shapely=2.1.2
+  # Projection of geographic coordinates to metric coordinates.
+  - pyproj=3.8.0
+  # Optional acceleration of the finite volume update loops.
+  - numba=0.67.0
+  # Test runner used by the continuous integration workflow.
+  - pytest=9.1.1
+  # Linter used by the continuous integration workflow.
+  - ruff=0.16.8
+  # Installer used for the editable installation of the nmi package.
+  - pip=24.0
+  # Packages installed with pip inside the conda environment.
+  - pip:
+      # The nmi package itself, installed in editable mode from the source tree.
+      - -e .
