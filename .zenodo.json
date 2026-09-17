@@ -1,0 +1,36 @@
+{
+  "title": "nonlocal-memory-identifiability: code for identifiability of perception and memory in nonlocal advection-diffusion models of animal movement",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Laitinen Imanov, Olaf Yunus",
+      "affiliation": "Department of Mathematics and Statistics, University of Helsinki",
+      "orcid": "0009-0006-5184-0810"
+    }
+  ],
+  "description": "Research code accompanying the manuscript on the structural and practical identifiability of perception and memory in nonlocal advection-diffusion models of animal movement. The repository provides Fourier pseudo-spectral and positivity-preserving finite-volume solvers for a nonlocal advection-diffusion model coupled to a cognitive map, the fixed-point characterisation of its stationary states, the reconstruction of the parameters from two Fourier modes, profile likelihood and Bayesian inference on synthetic data across noise levels, sampling designs, perceptual ranges and kernel shapes, and an application to publicly archived wolf Global Positioning System location data.",
+  "license": "MPL-2.0",
+  "access_right": "open",
+  "keywords": [
+    "nonlocal advection-diffusion",
+    "structural identifiability",
+    "practical identifiability",
+    "spatial memory",
+    "perceptual range",
+    "animal movement",
+    "Bayesian inference",
+    "profile likelihood"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/olaflaitinen/nonlocal-memory-identifiability",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.5441/001/1.7vr1k987",
+      "relation": "references",
+      "scheme": "doi"
+    }
+  ]
+}

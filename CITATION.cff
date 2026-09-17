@@ -1,0 +1,69 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Citation metadata of the software, in the Citation File Format, so
+# that the repository can be cited alongside the manuscript.
+# Manuscript: supports the code availability statement.
+# Inputs: none. Outputs: metadata consumed by citation tools and by Zenodo.
+
+# Version of the Citation File Format used by this file.
+cff-version: 1.2.0
+# Message shown by citation tools when the software is cited.
+message: "If you use this software, please cite it using the metadata below."
+# Title of the software, which names the accompanying manuscript.
+title: "nonlocal-memory-identifiability: code for identifiability of perception and memory in nonlocal advection-diffusion models of animal movement"
+# The cited work is software rather than an article.
+type: software
+# Version of the code archived alongside the manuscript.
+version: 0.1.0
+# Licence of the source code, expressed as an SPDX identifier.
+license: MPL-2.0
+# Location of the source code repository.
+repository-code: "https://github.com/olaflaitinen/nonlocal-memory-identifiability"
+# Authors of the software.
+authors:
+  # Sole author of the software and of the accompanying manuscript.
+  - family-names: "Laitinen Imanov"
+    # Given names of the author, as they appear in the manuscript.
+    given-names: "Olaf Yunus"
+    # Persistent identifier of the author.
+    orcid: "https://orcid.org/0009-0006-5184-0810"
+    # Affiliation of the author at the time of the work.
+    affiliation: "Department of Mathematics and Statistics, University of Helsinki"
+    # Electronic mail address of the corresponding author.
+    email: "yunus.imanov@helsinki.fi"
+# Free text keywords used by citation tools and by archives.
+keywords:
+  # Class of partial differential equations implemented by the software.
+  - nonlocal advection-diffusion
+  # Central question addressed by the software.
+  - structural identifiability
+  # Cognitive mechanism represented by the model.
+  - spatial memory
+  # Application domain of the model.
+  - animal movement
+  # Statistical framework used for the inference.
+  - Bayesian inference
+# The article that the software accompanies, cited in preference to the software.
+preferred-citation:
+  # The preferred citation is a journal article.
+  type: article
+  # Title of the article.
+  title: "Structural and practical identifiability of perception and memory in nonlocal advection-diffusion models of animal movement"
+  # Authors of the article.
+  authors:
+    # Sole author of the article.
+    - family-names: "Laitinen Imanov"
+      # Given names of the author, as they appear in the manuscript.
+      given-names: "Olaf Yunus"
+      # Persistent identifier of the author.
+      orcid: "https://orcid.org/0009-0006-5184-0810"
+      # Affiliation of the author at the time of the work.
+      affiliation: "Department of Mathematics and Statistics, University of Helsinki"
+  # Journal to which the article is submitted.
+  journal: "Journal of Mathematical Biology"
+  # Publication status of the article, to be updated on publication.
+  notes: "In preparation. The volume, pages and digital object identifier are added on publication."
+  # Year in which the work was prepared.
+  year: 2026
