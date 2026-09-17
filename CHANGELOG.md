@@ -56,3 +56,13 @@ follows Keep a Changelog, and the project adheres to semantic versioning.
   ratio with the dimensions of an area, so that the fitted density was
   numerically indistinguishable from a uniform one. The ratio is now used in
   the dimensionless form kappa u_bar of Proposition 3.
+- The bounded convolution of the finite-volume solver evaluated a direct
+  discrete convolution at every time step, which dominated the cost of a
+  bounded solve. It is now evaluated by a padded fast Fourier transform whose
+  kernel transform is computed once per grid and kernel.
+- The verification of Proposition 4 on a bounded interval used a strongly
+  supercritical aggregation ratio, whose narrow aggregate the first-order
+  scheme could not resolve, so that the logarithm in the stationary identity
+  was dominated by the discretisation error. The test now uses the same
+  twenty per cent supercriticality as the design of Section 4.2, with the onset
+  value formed from the cosine modes admitted by the no-flux boundary.

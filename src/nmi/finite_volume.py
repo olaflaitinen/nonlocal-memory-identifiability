@@ -19,9 +19,37 @@ from nmi.grids import wavenumbers_1d  # Wavenumbers used by the periodic convolu
 from nmi.kernels import kernel_hat_1d, kernel_values_1d  # Kernel transforms and profiles.
 
 
+# Cache of the transformed quadrature weights of the bounded convolution.
+_BOUNDED_KERNEL_CACHE = {}  # Keyed by the grid size, the range, the kernel and the cell width.
+
+
+# Transformed quadrature weights of the bounded convolution, computed once.
+# The weights depend only on the grid and on the kernel, so they are cached
+# across the many time steps of one finite-volume solve.
+# Arguments:
+#   n_cells (int): number of cells of the bounded interval.
+#   radius (float): perceptual range R of the detection kernel.
+#   kernel (str): "tophat" or "gaussian".
+#   cell (float): uniform cell width of the grid.
+# Returns:
+#   tuple: the transform of the weights and the length of the padded transform.
+def _bounded_kernel_spectrum(n_cells, radius, kernel, cell):
+    key = (int(n_cells), float(radius), str(kernel), float(cell))  # Identity of the weights.
+    cached = _BOUNDED_KERNEL_CACHE.get(key)  # Weights computed by an earlier call, if any.
+    if cached is not None:  # The weights of this configuration are already available.
+        return cached  # Reuse the cached transform rather than recomputing it.
+    offsets = (np.arange(-(n_cells - 1), n_cells)) * cell  # Displacements between cell centres.
+    weights = kernel_values_1d(offsets, radius, kernel) * cell  # Quadrature weights of the kernel.
+    length = int(2 ** int(np.ceil(np.log2(3 * n_cells))))  # Padded length of the linear convolution.
+    spectrum = np.fft.rfft(weights, n=length)  # Transform of the weights on the padded grid.
+    _BOUNDED_KERNEL_CACHE[key] = (spectrum, length)  # Store the transform for the later steps.
+    return spectrum, length  # Transform of the weights and the padded transform length.
+
+
 # Convolution of a field with the detection kernel on a bounded interval.
 # The field is extended by zero outside the interval, as required by the
-# bounded domain formulation of Proposition 4.
+# bounded domain formulation of Proposition 4. The linear convolution is
+# evaluated on a padded grid, so that no contribution wraps around.
 # Arguments:
 #   field (numpy.ndarray): cell averages on the bounded interval.
 #   radius (float): perceptual range R of the detection kernel.
@@ -31,9 +59,9 @@ from nmi.kernels import kernel_hat_1d, kernel_values_1d  # Kernel transforms and
 #   numpy.ndarray: cell averages of G_R * field on the same grid.
 def convolve_bounded_1d(field, radius, kernel, cell):
     n_cells = field.shape[0]  # Number of cells of the bounded interval.
-    offsets = (np.arange(-(n_cells - 1), n_cells)) * cell  # Displacements between cell centres.
-    weights = kernel_values_1d(offsets, radius, kernel) * cell  # Quadrature weights of the kernel.
-    full = np.convolve(field, weights, mode="full")  # Discrete convolution with zero extension.
+    spectrum, length = _bounded_kernel_spectrum(n_cells, radius, kernel, cell)  # Cached weights.
+    transformed = np.fft.rfft(field, n=length) * spectrum  # Product of the two transforms.
+    full = np.fft.irfft(transformed, n=length)  # Linear convolution on the padded grid.
     return full[n_cells - 1 : 2 * n_cells - 1]  # Entries that correspond to the cells of the grid.
 
 
