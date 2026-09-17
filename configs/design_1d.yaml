@@ -1,0 +1,99 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Design of the one-dimensional synthetic experiments, including the
+# fixed model parameters, the factorial design of Table 4, the prior bounds
+# given with Table 3 and the seeds that make every condition reproducible.
+# Manuscript: Section 4.2, Tables 3 and 4.
+# Inputs: none. Outputs: the design block shared by every one-dimensional
+# experiment configuration.
+
+# Identifier of this configuration, recorded in the output metadata.
+experiment: design_1d
+# Block that describes the synthetic design of Section 4.2.
+design:
+  # Length L of the periodic domain, fixed by the nondimensionalisation.
+  domain_length: 1.0
+  # Mean density u_bar of the conserved mass, fixed by the nondimensionalisation.
+  mean_density: 1.0
+  # Memory uptake rate beta, set to one without loss of generality by Proposition 1.
+  beta: 1.0
+  # Diffusion rate d of the density equation.
+  diffusion: 0.01
+  # Memory decay rate mu of the map equation.
+  memory_decay: 1.0
+  # Amplitude epsilon of the initial perturbation of the uniform state.
+  perturbation_amplitude: 0.05
+  # Number of Fourier modes that make up the initial perturbation.
+  perturbation_modes: 8
+  # Seed that fixes the amplitudes and phases of the initial perturbation.
+  perturbation_seed: 20260917
+  # Upper end T of the observation window of the transient experiments.
+  observation_time: 100.0
+  # Initial cognitive map, zero in every synthetic condition.
+  initial_map: 0.0
+  # Factor by which the aggregation ratio exceeds the onset value of Proposition 3.
+  supercriticality: 1.2
+  # Perceptual ranges R of the factorial design of Table 4.
+  perceptual_ranges: [0.075, 0.15, 0.30]
+  # Detection kernel families of the factorial design of Table 4.
+  kernels: [tophat, gaussian]
+  # Relative noise levels eta of the factorial design of Table 4.
+  noise_levels: [0.01, 0.05, 0.10, 0.20]
+  # Named sampling designs of the factorial design of Table 4.
+  sampling_designs:
+    # Sparse design with sixteen spatial points and six observation times.
+    sparse:
+      # Number of equally spaced spatial points on the torus.
+      n_space: 16
+      # Number of equally spaced observation times, including the initial time.
+      n_time: 6
+    # Intermediate design with thirty two spatial points and eleven times.
+    intermediate:
+      # Number of equally spaced spatial points on the torus.
+      n_space: 32
+      # Number of equally spaced observation times, including the initial time.
+      n_time: 11
+    # Dense design with sixty four spatial points and twenty one times.
+    dense:
+      # Number of equally spaced spatial points on the torus.
+      n_space: 64
+      # Number of equally spaced observation times, including the initial time.
+      n_time: 21
+  # Perceptual range of the sixteen profile likelihood conditions of Table 6.
+  profile_radius: 0.15
+  # Sampling design of the sixteen profile likelihood conditions of Table 6.
+  profile_sampling: intermediate
+  # Global seed from which every per-condition seed is spawned in index order.
+  seed: 20260101
+  # Prior bounds of the independent log-uniform priors given with Table 3.
+  priors:
+    # Lower and upper bounds of the diffusion rate d.
+    diffusion: [0.001, 0.1]
+    # Lower and upper bounds of the memory decay rate mu.
+    memory_decay: [0.1, 10.0]
+    # Lower and upper bounds of the perceptual range R.
+    radius: [0.01, 0.49]
+    # Multiplicative half width of the prior on the combined advection strength.
+    advection_factor: 10.0
+# Block that describes the numerical resolutions of Section 4.1.
+solver:
+  # Resolution used when evaluating the likelihood during inference.
+  inference:
+    # Number of grid points N of the inference resolution.
+    n_points: 256
+    # Time step of the inference resolution.
+    time_step: 0.005
+  # Resolution used when generating synthetic data, to avoid the inverse crime.
+  reference:
+    # Number of grid points N of the reference resolution.
+    n_points: 1024
+    # Time step of the reference resolution.
+    time_step: 0.0005
+  # Time stepping scheme of Section 4.1.
+  scheme: imex_euler
+  # Relative tolerance below which a pseudo-spectral run is rejected.
+  positivity_tolerance: 1.0e-8
+  # Whether the optional Numba acceleration of the finite volume solver is used.
+  use_numba: false

@@ -1,0 +1,44 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Purpose: Numerical resolutions and time stepping options of the forward
+# solvers, kept separate so that the convergence study of Experiment 1.1 can
+# override them without touching the experimental design.
+# Manuscript: Section 4.1, numerical solution.
+# Inputs: none. Outputs: the solver block shared by the experiments.
+
+# Identifier of this configuration, recorded in the output metadata.
+experiment: solver
+# Block that describes the numerical resolutions of Section 4.1.
+solver:
+  # Resolution used when evaluating the likelihood during inference.
+  inference:
+    # Number of grid points N of the inference resolution.
+    n_points: 256
+    # Time step of the inference resolution.
+    time_step: 0.005
+  # Resolution used when generating synthetic data, to avoid the inverse crime.
+  reference:
+    # Number of grid points N of the reference resolution.
+    n_points: 1024
+    # Time step of the reference resolution.
+    time_step: 0.0005
+  # Grid sizes inspected by the one-dimensional convergence study.
+  convergence_grids: [64, 128, 256, 512]
+  # Time steps inspected by the one-dimensional convergence study.
+  convergence_time_steps: [0.02, 0.01, 0.005, 0.0025]
+  # Grid sizes inspected by the two-dimensional convergence study.
+  convergence_grids_2d: [32, 64, 128]
+  # Time stepping scheme of Section 4.1.
+  scheme: imex_euler
+  # Relative tolerance below which a pseudo-spectral run is rejected.
+  positivity_tolerance: 1.0e-8
+  # Whether the optional Numba acceleration of the finite volume solver is used.
+  use_numba: false
+  # Damping weight of the fixed-point steady state solver.
+  fixed_point_damping: 0.5
+  # Convergence tolerance of the fixed-point steady state solver.
+  fixed_point_tolerance: 1.0e-12
+  # Maximum number of iterations of the fixed-point steady state solver.
+  fixed_point_max_iter: 20000
