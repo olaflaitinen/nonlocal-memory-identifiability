@@ -25,13 +25,15 @@ design:
   # Two noise levels keep the number of conditions small.
   noise_levels: [0.05, 0.20]
   # A single sampling design keeps the number of conditions small.
+  active_sampling: [sparse]
+  # Reduced definition of the sparse sampling design used by the smoke run.
   sampling_designs:
-    # Sparse design with sixteen spatial points and six observation times.
+    # Sparse design with eight spatial points and four observation times.
     sparse:
       # Number of equally spaced spatial points on the torus.
-      n_space: 16
+      n_space: 8
       # Number of equally spaced observation times, including the initial time.
-      n_time: 6
+      n_time: 4
   # Perceptual range of the profile likelihood conditions of the smoke run.
   profile_radius: 0.15
   # Sampling design of the profile likelihood conditions of the smoke run.
@@ -104,10 +106,10 @@ steady_state:
   n_points: 64
   # Time step of the transient solve.
   time_step: 0.02
-  # End of the transient solve of the smoke run.
-  t_final: 60.0
+  # End of the transient solve of the smoke run, long enough to reach the steady state.
+  t_final: 300.0
   # Times at which the transient solution is recorded.
-  record_times: [0.0, 10.0, 20.0, 40.0, 60.0]
+  record_times: [0.0, 10.0, 20.0, 40.0, 80.0, 300.0]
   # Time step of the finite-volume comparison solve.
   fv_time_step: 0.002
   # End of the finite-volume comparison solve.

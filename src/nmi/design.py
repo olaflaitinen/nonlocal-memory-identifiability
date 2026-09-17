@@ -113,7 +113,9 @@ def design_1d(config):
     kernels = sorted(design["kernels"])  # Kernel families, in alphabetical order.
     radii = sorted(float(value) for value in design["perceptual_ranges"])  # Ranges, ascending.
     noises = sorted(float(value) for value in design["noise_levels"])  # Noise levels, ascending.
-    samplings = sorted(design["sampling_designs"])  # Sampling designs, in alphabetical order.
+    active = design.get("active_sampling")  # Optional restriction of the sampling designs.
+    names = list(active) if active else list(design["sampling_designs"])  # Retained designs.
+    samplings = sorted(names)  # Sampling designs of the factorial design, in alphabetical order.
     combinations = []  # Accumulator for the factor combinations in lexicographic order.
     for kernel in kernels:  # Outermost factor of the lexicographic ordering.
         for radius in radii:  # Second factor of the lexicographic ordering.

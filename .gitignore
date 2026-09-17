@@ -19,6 +19,8 @@ data/*
 results/raw/
 # Sampler checkpoints are large binary files that are regenerated on resume.
 checkpoints/
+# Outputs of the smoke configuration, which are a demonstration and not results.
+results/summary/smoke_*
 # Generated figures are rebuilt from the tracked summaries.
 results/figures/*
 # The placeholder keeps the empty figure directory in the working tree.
