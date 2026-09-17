@@ -33,7 +33,8 @@ def convolve_bounded_1d(field, radius, kernel, cell):
     n_cells = field.shape[0]  # Number of cells of the bounded interval.
     offsets = (np.arange(-(n_cells - 1), n_cells)) * cell  # Displacements between cell centres.
     weights = kernel_values_1d(offsets, radius, kernel) * cell  # Quadrature weights of the kernel.
-    return np.convolve(field, weights, mode="same")  # Discrete convolution with zero extension.
+    full = np.convolve(field, weights, mode="full")  # Discrete convolution with zero extension.
+    return full[n_cells - 1 : 2 * n_cells - 1]  # Entries that correspond to the cells of the grid.
 
 
 # Convolution of a periodic field with the detection kernel.
